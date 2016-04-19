@@ -1,24 +1,8 @@
 {
-    "type": "package",
-    "authors": [
-        {
-            "name": "Ivan Miranda",
-            "email": "ivan.miranda@sincco.com"
-        }
-    ],
-    "package": {
-        "name": "sincco/sfphp",
-        "description": "SimpleFramework(for)PHP",
-        "version": "dev-master",
-        "source": {
-            "url": "https://github.com/sincco/sfphp.git",
-            "type": "git",
-            "refernce": "master"
-        },
-        "autoload": {
-            "psr-0": {
-                "Sincco\\Sfphp": "src"
-            }
+    "name": "sincco/sfphp",
+    "autoload": {
+        "psr-0" : {
+            "Sincco\\Sfphp" : "src"
         }
     }
 }
