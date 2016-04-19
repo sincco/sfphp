@@ -1,0 +1,18 @@
+{
+    "name": "sincco/sfphp",
+    "description": "SimpleFramework(for)PHP",
+    "license": "MIT",
+    "keywords": ["sfphp","framework","sincco"],
+    "authors": [
+        {
+            "name": "Ivan Miranda",
+            "email": "ivan.miranda@sincco.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Sincco\\Sfphp\\": "src"
+        }
+    }
+}
