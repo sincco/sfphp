@@ -2,7 +2,7 @@
     "name": "sincco/sfphp",
     "autoload": {
         "psr-0" : {
-            "Sincco\\Sfphp" : "src"
+            "Sincco\\Sfphp" : ""
         }
     }
 }
