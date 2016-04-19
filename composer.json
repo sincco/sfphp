@@ -2,8 +2,8 @@
     "name": "sincco/sfphp",
     "version": "1.0.0",
     "autoload": {
-        "psr-0" : {
-            "Sincco\\Sfphp" : ""
+        "psr-4" : {
+            "Sincco\\Sfphp" : "src"
         }
     }
 }
