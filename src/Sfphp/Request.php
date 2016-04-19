@@ -1,8 +1,8 @@
 <?php
 
-namespace Sfphp\Request;
+namespace Sfphp;
 
-final class Input {
+final class Request {
 
 	private $data;
 	private $params;
