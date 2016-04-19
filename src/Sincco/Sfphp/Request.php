@@ -1,6 +1,6 @@
 <?php
 
-namespace Sfphp\Request;
+namespace Sincco\Sfphp;
 
 final class Request {
 
