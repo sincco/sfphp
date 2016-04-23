@@ -1,18 +1,24 @@
 <?php
+# NOTICE OF LICENSE
+#
+# This source file is subject to the Open Software License (OSL 3.0)
+# that is available through the world-wide-web at this URL:
+# http://opensource.org/licenses/osl-3.0.php
+#
+# -----------------------
+# @author: Iván Miranda
+# @version: 1.0.0
+# -----------------------
+# Ejecución de eventos según la petición realizada desde el navegador
+# -----------------------
 
 namespace Sincco\Sfphp;
 
-final class Request {
+final class Request extends \stdClass {
 
 	private $data;
 	private $params;
 
-	private $_module;
-	private $_control;
-	private $_action;
-	private $_params;
-	private $_previous;
-	private $_method;
 	private static $_instance;
 
 # La estructura de una peticion es:
@@ -44,7 +50,7 @@ final class Request {
 		array_shift($_url);
 
 		while (count($_segments) > 0) {
-			$this->data[array_shift($_segments)] = array_shift($_url);
+			$this->data['segments'][array_shift($_segments)] = ucwords(array_shift($_url));
 		}
 
 		$this->params = self::procesaParametros($_url);
