@@ -55,6 +55,9 @@ final class Request extends \stdClass {
 
 		$this->params = self::procesaParametros($_url);
 		$this->data["params"] = $this->params;
+
+		if(array_key_exists('__clearCache', $this->params))
+			array_map('unlink', glob(PATH_CACHE . '/*.cache'));
 	}
 
 # Regresa la peticion
@@ -90,7 +93,7 @@ final class Request extends \stdClass {
 		$_params = array();
 	#GET
 		foreach ($segmentos as $key => $value) {
-			$segmentos[$key] = self::limpiarGET($value);
+			$segmentos[$key] = self::cleanGET($value);
 		}
 		while(count($segmentos)) {
 			$_params[array_shift($segmentos)] = array_shift($segmentos);
@@ -104,27 +107,27 @@ final class Request extends \stdClass {
 			case "application/json; charset=UTF-8":
 			if(trim($_contenido) != "") {
 				foreach (json_decode($_contenido, TRUE) as $key => $value) {
-					$_params[$key] = self::limpiarEntradaPOST($value);
+					$_params[$key] = self::cleanPOST($value);
 				}
 			}
 			break;
 			case "application/x-www-form-urlencoded":
 				parse_str($_contenido, $postvars);
 				foreach($postvars as $field => $value) {
-					$_params[$field] = self::limpiarEntradaPOST($value);
+					$_params[$field] = self::cleanPOST($value);
 				}
 			break;
 			default:
 				parse_str($_contenido, $postvars);
 				foreach($postvars as $field => $value) {
-					$_params[$field] = self::limpiarEntradaPOST($value);
+					$_params[$field] = self::cleanPOST($value);
 				}
 			break;
 		}
 		return $_params;
 	}
 
-	private function limpiarGET($valor) {
+	private function cleanGET($valor) {
 		$_busquedas = array(
 		'@<script[^>]*?>.*?</script>@si',   #Quitar javascript
 		'@<[\/\!]*?[^<>]*?>@si',            #Quitar html
@@ -133,7 +136,7 @@ final class Request extends \stdClass {
 		);
 		if (is_array($valor)) {
 			foreach ($valor as $_key => $_value)
-				$valor[$_key] = self::limpiarGET($_value); #Recursivo para arreglos
+				$valor[$_key] = self::cleanGET($_value); #Recursivo para arreglos
 		}else {
 			$valor = preg_replace($_busquedas, '', $valor);
 			$valor = filter_var($valor,FILTER_SANITIZE_STRING);
@@ -143,7 +146,7 @@ final class Request extends \stdClass {
 		return $valor;
 	}
 
-	private function limpiarEntradaPOST($valor) {
+	private function cleanPOST($valor) {
 		$_busquedas = array(
 		'@<script[^>]*?>.*?</script>@si',   #Quitar javascript
 		'@<[\/\!]*?[^<>]*?>@si',            #Quitar html
@@ -152,7 +155,7 @@ final class Request extends \stdClass {
 		);
 		if (is_array($valor)) {
 			foreach ($valor as $_key => $_value)
-				$valor[$_key] = self::limpiarEntradaPOST($_value); #Recursivo para arreglos
+				$valor[$_key] = self::cleanPOST($_value); #Recursivo para arreglos
 		}else
 			$valor = preg_replace($_busquedas, '', $valor);
 		return $valor;

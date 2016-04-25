@@ -14,14 +14,16 @@
 
 namespace Sincco\Sfphp;
 
+use Sincco\Sfphp\Config\Reader;
+use Sincco\Sfphp\Request;
+
 final class Launcher extends \stdClass {
 	public function __construct() {
-		var_dump(\Sincco\Sfphp\Session::get('sincco\sfphp\client\uid'));
-		var_dump(\Sincco\Sfphp\Session::get('sincco\sfphp\client\token'));
-		#\Sincco\Sfphp\Logger::log($_SESSION);
-		\Sincco\Sfphp\Logger::log(array("param1"=>array("val1"=>array("otro","mas"),"val2")));
-		$segments = \Sincco\Sfphp\Request::get('segments');
+		$_config = Reader::get('app');
+		if(isset($_config['timezone']))
+			date_default_timezone_set($_config['timezone']);
 		$path = "";
+		$segments = Request::get('segments');
 		if(trim($segments['controller']) == "")
 			$segments['controller'] = "Index";
 		if(trim($segments['action']) == "")
@@ -39,26 +41,6 @@ final class Launcher extends \stdClass {
 			header("HTTP/1.0 404 Not Found");
 			die();
 		}
-		// $clase = NULL;
-		// if(!is_null($request['_modulo']))
-		// 	$clase = ucwords($request['_modulo'])."_";
-		// $clase .= "Controladores_".ucwords($request['_control']);
-		// try {
-		// 	$objSeguridad = new Seguridad();
-		// 	if($objSeguridad->validarAcceso(ucwords($request['_control']))) {
-		// 		$objClase = new $clase();
-		// 		if(is_callable(array($objClase, $request['_accion'])))
-		// 			call_user_func(array($objClase, $request['_accion']));
-		// 		else {
-		// 			header("Location: ".BASE_URL."Etc/Errors/process.php?code=401");
-		// 			die();
-		// 		}
-		// 	} else {
-		// 		trigger_error("La accion {$request['_accion']} no esta definida en {$clase}", E_USER_ERROR);
-		// 	}
-		// } catch (Sfphp_Error $e) {
-		// 	Sfphp_Log::error($e);
-		// }
 	}
 
 	private function _loadClass($path, $class) {

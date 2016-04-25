@@ -22,7 +22,7 @@ final class Reader extends \stdClass {
 	private $cache;
 
 	private function __construct() {
-		$adapter = new File('var/cache');
+		$adapter = new File(PATH_CACHE);
 		$adapter->setOption('ttl', 3600);
 		$this->cache = new Cache($adapter);
 		if(is_null($this->cache->get('config'))) {
@@ -56,13 +56,20 @@ final class Reader extends \stdClass {
 	private static function defineConstants($array) {
 		if(!isset($array["front"]["url"]))
 			$array["front"]["url"] = self::url();
-		define("BASE_URL",$array["front"]["url"]);
-		foreach ($array["app"] as $key => $value)
-			define(strtoupper("app_".$key),$value);
-		foreach ($array["dev"] as $key => $value)
-			define(strtoupper("dev_".$key),$value);
-		foreach ($array["session"] as $key => $value)
-			define(strtoupper("session_".$key),$value);
+		if(!defined("BASE_URL"))
+			define("BASE_URL",$array["front"]["url"]);
+		foreach ($array["app"] as $key => $value) {
+			if(!defined(strtoupper("app_".$key)))
+				define(strtoupper("app_".$key),$value);
+		}
+		foreach ($array["dev"] as $key => $value) {
+			if(!defined(strtoupper("dev_".$key)))
+				define(strtoupper("dev_".$key),$value);
+		}
+		foreach ($array["session"] as $key => $value) {
+			if(!defined(strtoupper("session_".$key)))
+				define(strtoupper("session_".$key),$value);
+		}
 	}
 
 	private function xml2array($xml) {

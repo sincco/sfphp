@@ -14,11 +14,16 @@
 
 namespace Sincco\Sfphp;
 
+use \Sincco\Sfphp\;
+use \Sincco\Sfphp\Config\;
+
 final class Session extends \stdClass {
+    
     protected static $instance;
+
     protected function __construct() {
         try{
-            $config = \Sincco\Sfphp\Config\Reader::get();
+            $config = Reader::get();
             $config = $config['session'];
             $httponly = true;
             $session_hash = 'sha512';
@@ -54,7 +59,7 @@ final class Session extends \stdClass {
             self::$instance = new self();
         if(strlen(trim($section))) {
             if(isset($_SESSION[$section]))
-                return \Sincco\Sfphp\Crypt::decrypt($_SESSION[$section]);
+                return trim(Crypt::decrypt($_SESSION[$section]));
             else
                 return NULL;
         }
@@ -65,7 +70,7 @@ final class Session extends \stdClass {
     public function set($section, $valor) {
         if(trim(session_id()) == "")
             self::$instance = new self();
-        $_SESSION[$section] = \Sincco\Sfphp\Crypt::encrypt($valor);
+        $_SESSION[$section] = Crypt::encrypt($valor);
     }
 
     public function del($section) {
