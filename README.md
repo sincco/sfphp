@@ -1,6 +1,6 @@
 # sfphp
 SimpleFramework(for)PHP
-
+```
 {
     "repositories": [
       {
@@ -10,7 +10,7 @@ SimpleFramework(for)PHP
     ],
     "require": {
         "sincco/sfphp": "dev-master",
-        "desarrolla2/cache":  "~2.0",
-	"aura/session": "~2.0"
+        "desarrolla2/cache":  "~2.0"
     }
 }
+```
