@@ -10,7 +10,8 @@ SimpleFramework(for)PHP
     ],
     "require": {
         "sincco/sfphp": "dev-master",
-        "desarrolla2/cache":  "~2.0"
+        "desarrolla2/cache":  "~2.0",
+         "twig/twig":  "~1.0"
     }
 }
 ```
