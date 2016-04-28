@@ -19,6 +19,7 @@ use Sincco\Sfphp\Request;
 
 final class Launcher extends \stdClass {
 	public function __construct() {
+		// \Sincco\Sfphp\Session();
 		$_config = Reader::get('app');
 		if(isset($_config['timezone']))
 			date_default_timezone_set($_config['timezone']);
@@ -38,8 +39,7 @@ final class Launcher extends \stdClass {
 				call_user_func(array($objClass, $segments['action']));
 		}
 		else {
-			header("HTTP/1.0 404 Not Found");
-			die();
+			throw new \Sincco\Sfphp\Exception("ERROR :: No es posible lanzar " . implode("->", $segments), 404);
 		}
 	}
 

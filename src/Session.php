@@ -14,15 +14,15 @@
 
 namespace Sincco\Sfphp;
 
-use \Sincco\Sfphp\;
-use \Sincco\Sfphp\Config\;
+use Sincco\Sfphp;
+use Sincco\Sfphp\Config\Reader;
 
 final class Session extends \stdClass {
     
     protected static $instance;
 
     protected function __construct() {
-        try{
+        #try{
             $config = Reader::get();
             $config = $config['session'];
             $httponly = true;
@@ -43,15 +43,15 @@ final class Session extends \stdClass {
                 self::set('sincco\sfphp\client\uid', md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].$_SERVER['HTTP_COOKIE']));
             else {
                 if(self::get('sincco\sfphp\client\uid') != md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].$_SERVER['HTTP_COOKIE']))
-                    throw new \Sincco\Sfphp\Exception('Violacion de seguridad');
+                    throw new \Sincco\Sfphp\Exception('Violacion de seguridad', 403);
             }
             if(is_null(self::get('sincco\sfphp\client\token')))
                 self::set('sincco\sfphp\client\token', md5(\Sincco\Sfphp\UUID::v4()));
             self::set('sincco\sfphp\client\browser', $_SERVER['HTTP_USER_AGENT']);
             self::set('sincco\sfphp\client\address', $_SERVER['REMOTE_ADDR']);
-        } catch (\Sincco\Sfphp\Exception $err) {
-            $err->logError($err);
-        }
+        #} catch (\Sincco\Sfphp\Exception $err) {
+        #    $err->logError($err);
+        #}
     }
 
     public static function get($section = '') {

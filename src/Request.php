@@ -57,7 +57,19 @@ final class Request extends \stdClass {
 		$this->data["params"] = $this->params;
 
 		if(array_key_exists('__clearCache', $this->params))
-			array_map('unlink', glob(PATH_CACHE . '/*.cache'));
+			$this->clearCache(PATH_CACHE);
+	}
+
+	private function clearCache($dir) {
+		$files = glob($dir . '/*'); 
+		foreach($files as $file){
+			if (is_dir($file) and !in_array($file, array('..', '.')))  {
+				$this->clearCache($file);
+				rmdir($file);
+			} else if(is_file($file) and ($file != __FILE__)) {
+				unlink($file); 
+			}
+		}
 	}
 
 # Regresa la peticion
@@ -139,6 +151,7 @@ final class Request extends \stdClass {
 				$valor[$_key] = self::cleanGET($_value); #Recursivo para arreglos
 		}else {
 			$valor = preg_replace($_busquedas, '', $valor);
+			$valor = strip_tags($valor);
 			$valor = filter_var($valor,FILTER_SANITIZE_STRING);
 			if (get_magic_quotes_gpc())
 				$valor = stripslashes($valor);
@@ -156,8 +169,13 @@ final class Request extends \stdClass {
 		if (is_array($valor)) {
 			foreach ($valor as $_key => $_value)
 				$valor[$_key] = self::cleanPOST($_value); #Recursivo para arreglos
-		}else
+		}else {
 			$valor = preg_replace($_busquedas, '', $valor);
+			$valor = strip_tags($valor);
+			$valor = filter_var($valor,FILTER_SANITIZE_STRING);
+			if (get_magic_quotes_gpc())
+				$valor = stripslashes($valor);	
+		}
 		return $valor;
 	}
 }

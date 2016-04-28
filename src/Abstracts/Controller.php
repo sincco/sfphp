@@ -18,8 +18,6 @@ abstract class Controller {
 	protected $_vista;
 	protected $_modelo;
 
-	abstract function index();
-
 	# Cualquier instancia tiene el atributo de vista inicilizado
 	public function __construct(){
 		# $this->_vista = new Sfphp_Vista();
