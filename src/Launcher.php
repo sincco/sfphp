@@ -19,7 +19,6 @@ use Sincco\Sfphp\Request;
 
 final class Launcher extends \stdClass {
 	public function __construct() {
-		// \Sincco\Sfphp\Session();
 		$_config = Reader::get('app');
 		if(isset($_config['timezone']))
 			date_default_timezone_set($_config['timezone']);
