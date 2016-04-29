@@ -44,7 +44,7 @@ class Connector extends \stdClass {
     public function __construct()
     {
         $this->log = new Log();
-        $this->Connect();
+        $this->connect();
         $this->parameters = array();
     }
     
@@ -56,8 +56,37 @@ class Connector extends \stdClass {
      *	3. Tries to connect to the database.
      *	4. If connection failed, exception is displayed and a log file gets created.
      */
-    private function Connect()
+    private function connect()
     {
+        if(!isset($base["charset"]))
+            $base["charset"] = "utf8";
+        $parametros = array();
+        if($base["type"] == "mysql")
+            $parametros = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '. $base["charset"]);
+        else
+            $parametros = array();
+        switch ($base["type"]) {
+            case 'sqlsrv':
+                self::$conexion = new PDO($base["type"].":Server=".$base["host"].";",
+                $base["user"], Sfphp::decrypt($base["password"]), $parametros);
+            break;
+            case 'mysql':
+                self::$conexion = new PDO($base["type"].":host=".$base["host"].";dbname=".$base["dbname"],
+                $base["user"], Sfphp::decrypt($base["password"]), $parametros);
+            break;
+            case 'firebird':
+                $parametros = array(
+                PDO::FB_ATTR_TIMESTAMP_FORMAT,"%d-%m-%Y",
+                PDO::FB_ATTR_DATE_FORMAT ,"%d-%m-%Y"
+                );
+                self::$conexion = new PDO($base["type"].":dbname=".$base["host"].$base["dbname"], $base["user"], Sfphp::decrypt($base["password"]), $parametros);
+            break;
+            default:
+                self::$conexion = new PDO($base["type"].":host=".$base["host"].";dbname=".$base["dbname"],
+                $base["user"], Sfphp::decrypt($base["password"]));
+            break;
+        }
+
         $this->settings = parse_ini_file("settings.ini.php");
         $dsn            = 'mysql:dbname=' . $this->settings["dbname"] . ';host=' . $this->settings["host"] . '';
         try {
@@ -106,7 +135,7 @@ class Connector extends \stdClass {
     {
         # Connect to database
         if (!$this->bConnected) {
-            $this->Connect();
+            $this->connect();
         }
         try {
             # Prepare query
