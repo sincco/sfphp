@@ -32,7 +32,7 @@ final class Launcher extends \stdClass {
 			$path .= "\\{$segments['module']}";
 		$path .= "\\Controllers\\{$segments['controller']}";
 
-		$objClass = $this->_loadClass($path, $segments['controller']);
+		$objClass = $this->_loadClass($path, $segments['controller']."Controller");
 		if(is_callable(array($objClass, $segments['action']))) {
 			if($segments['action'] != "index")
 				call_user_func(array($objClass, $segments['action']));

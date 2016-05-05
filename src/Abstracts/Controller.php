@@ -55,7 +55,7 @@ abstract class Controller {
 		array_push($path, $path[(count($path) - 1)]);
 		$path[count($path) - 2] = 'Models';
 		include_once(PATH_ROOT . '/app/' . implode('/', $path) . '.php');
-		$class = $path[count($path) - 1];
+		$class = $path[count($path) - 1]."Model";
 		return new $class();
 	}
 

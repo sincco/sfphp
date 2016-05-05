@@ -50,10 +50,11 @@ final class Exception extends \Exception {
 					$twig = new \Twig_Environment($loader, array(
 						'cache' => PATH_CACHE,
 					));
-					echo $twig->render('template.html', array('file' => 'In ' . $err->getFile() . ' on line ' . $err->getLine(), 'description' => $err, 'type' => self::getErrorType($err->getCode()), 'code' => 404));					
+					echo $twig->render('template.html', array('file' => 'In ' . $err->getFile() . ' on line ' . $err->getLine(), 'description' => $err, 'type' => self::getErrorType($err->getCode()), 'code' => $err->getCode()));
+					die();
 				} else {
 					echo $errorInfo;
-					header("HTTP/1.0 404 Not Found");
+					header("HTTP/1.0 " . $err->getCode() . " " . $errorInfo);
 					die();
 				}
 				break;

@@ -23,7 +23,7 @@ final class Reader extends \stdClass {
 
 	private function __construct() {
 		$adapter = new File(PATH_CACHE);
-		$adapter->setOption('ttl', 3600);
+		$adapter->setOption('ttl', 86400);
 		$this->cache = new Cache($adapter);
 		if(is_null($this->cache->get('config'))) {
 			$file = PATH_CONFIG . "/config.xml";
@@ -34,7 +34,7 @@ final class Reader extends \stdClass {
 				$_config = array();
 			} else {
 				$_config = self::xml2array(new \SimpleXMLElement(file_get_contents($file)));
-				$this->cache->set('config', $_config, 3600);
+				$this->cache->set('config', $_config, 86400);
 			}
 		}
 	}
