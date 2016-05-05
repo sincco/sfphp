@@ -39,6 +39,11 @@ final class Reader extends \stdClass {
 		}
 	}
 
+	public static function restart() {
+		self::$instance = NULL;
+
+	}
+
 	public static function get($atributo = '') {
 		if(!self::$instance instanceof self)
 			self::$instance = new self();

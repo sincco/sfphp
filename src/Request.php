@@ -14,6 +14,8 @@
 
 namespace Sincco\Sfphp;
 
+use Sincco\Sfphp\Config\Reader;
+
 final class Request extends \stdClass {
 
 	private $data;
@@ -47,7 +49,9 @@ final class Request extends \stdClass {
 		if(!isset($_GET['url']))
 			$_GET['url'] = FALSE;
 		$_url = explode('/', $_GET['url']);
-		array_shift($_url);
+		
+		if(!strstr($_SERVER['SERVER_SOFTWARE'], 'Apache'))
+			array_shift($_url);
 
 		while (count($_segments) > 0) {
 			$this->data['segments'][array_shift($_segments)] = ucwords(array_shift($_url));
@@ -56,8 +60,10 @@ final class Request extends \stdClass {
 		$this->params = self::procesaParametros($_url);
 		$this->data["params"] = $this->params;
 
-		if(array_key_exists('__clearCache', $this->params))
+		if(array_key_exists('__clearCache', $this->params)) {
 			$this->clearCache(PATH_CACHE);
+			Reader::restart();
+		}
 	}
 
 	private function clearCache($dir) {

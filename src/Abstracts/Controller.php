@@ -59,6 +59,10 @@ abstract class Controller {
 		return new $class();
 	}
 
+	public function newView($view) {
+		return new View($view);
+	}
+
 	# Nombre del atributo a usarse en los __get __set
 	private function nombreAtributo($atributo) {
 		$atributo = str_replace("(", "", $atributo);

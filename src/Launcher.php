@@ -22,6 +22,7 @@ final class Launcher extends \stdClass {
 		$_config = Reader::get('app');
 		if(isset($_config['timezone']))
 			date_default_timezone_set($_config['timezone']);
+		
 		$path = "";
 		$segments = Request::get('segments');
 		if(trim($segments['controller']) == "")
@@ -34,7 +35,7 @@ final class Launcher extends \stdClass {
 
 		$objClass = $this->_loadClass($path, $segments['controller']."Controller");
 		if(is_callable(array($objClass, $segments['action']))) {
-			if($segments['action'] != "index")
+			//if($segments['action'] != "index")
 				call_user_func(array($objClass, $segments['action']));
 		}
 		else {

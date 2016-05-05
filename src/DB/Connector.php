@@ -133,53 +133,33 @@ class Connector extends \stdClass {
     }
     
     public function query($query, $params = null, $fetchmode = \PDO::FETCH_ASSOC) {
+        $response = false;
     	if(!is_a($this->pdo, 'PDO'))
     		$this->connect();
         $query = trim(str_replace("\r", " ", $query));
-        
+        $idQuery = md5($query . serialize($params));
         $adapter = new File(PATH_CACHE);
         $cache = new Cache($adapter);
-        $idQuery = md5($query . serialize($params));
-        if(is_null($cache->get($this->connectionData['type'].$idQuery))) {
+        if(!defined('DEV_CACHE')) {
+            if(!is_null($cache->get($this->connectionData['type'].$idQuery))) {
+                $reponse = $cache->get($this->connectionData['type'].$idQuery);
+            }
+        }
+        if(!$response) {
             $this->Init($query, $params);
             $rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
-
             $statement = strtolower($rawStatement[0]);
-
             if ($statement === 'select' || $statement === 'show') {
                 $response = $this->sQuery->fetchAll($fetchmode);
-                $cache->set($this->connectionData['type'].$idQuery, $response);
-                return $response;
             } elseif ($statement === 'insert' || $statement === 'update' || $statement === 'delete') {
-                return $this->sQuery->rowCount();
+                $response = $this->sQuery->rowCount();
             } else {
-                return NULL;
+                $response = NULL;
             }
-        } else {
-            return $cache->get($this->connectionData['type'].$idQuery);
         }
-    }
-
-    public function _debugQuery($replaced=true) {
-        $q = $this->queryString;
-
-        if (!$replaced) {
-        return $q;
-        }
-
-        return preg_replace_callback('/:([0-9a-z_]+)/i', array($this, '_debugReplace'), $q);
-    }
-
-    protected function _debugReplace($m) {
-        $v = $this->_debugValues[$m[1]];
-        if ($v === null) {
-        return "NULL";
-        }
-        if (!is_numeric($v)) {
-        $v = str_replace("'", "''", $v);
-        }
-
-        return "'". $v ."'";
+        if(!defined('DEV_CACHE'))
+            $cache->set($this->connectionData['type'].$idQuery, $response);
+        return $response;
     }
     
     public function lastInsertId() {
@@ -237,4 +217,5 @@ class Connector extends \stdClass {
         
         return $exception;
     }
+
 }
