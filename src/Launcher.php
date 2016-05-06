@@ -25,6 +25,7 @@ final class Launcher extends \stdClass {
 		
 		$path = "";
 		$segments = Request::get('segments');
+
 		if(trim($segments['controller']) == "")
 			$segments['controller'] = "Index";
 		if(trim($segments['action']) == "")
@@ -32,7 +33,6 @@ final class Launcher extends \stdClass {
 		if(trim($segments['module']) != "")
 			$path .= "\\{$segments['module']}";
 		$path .= "\\Controllers\\{$segments['controller']}";
-
 		$objClass = $this->_loadClass($path, $segments['controller']."Controller");
 		if(is_callable(array($objClass, $segments['action']))) {
 			//if($segments['action'] != "index")

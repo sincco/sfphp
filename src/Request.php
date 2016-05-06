@@ -53,6 +53,11 @@ final class Request extends \stdClass {
 		if(!strstr($_SERVER['SERVER_SOFTWARE'], 'Apache'))
 			array_shift($_url);
 
+		$_segmentsTemp = $_segments;
+		$_urlTemp = $_url;
+		if(array_shift($_segmentsTemp) == "module" && !is_dir(PATH_ROOT . "/app/" . ucwords(array_shift($_urlTemp))))
+			array_shift($_segments);
+
 		while (count($_segments) > 0) {
 			$this->data['segments'][array_shift($_segments)] = ucwords(array_shift($_url));
 		}
