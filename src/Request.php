@@ -29,10 +29,7 @@ final class Request extends \stdClass {
 		$this->data = array();
 		$this->params = array();
 
-		if(intval(getenv('SFPHP_MODULES')) == 1)
-			$_segments = array('module', 'controller', 'action');
-		else
-			$_segments = array('controller', 'action');
+		$_segments = array('module', 'controller', 'action');
 
 		$this->data['method'] = strtoupper(trim($_SERVER['REQUEST_METHOD']));
 
@@ -62,6 +59,9 @@ final class Request extends \stdClass {
 			$this->data['segments'][array_shift($_segments)] = ucwords(array_shift($_url));
 		}
 
+		if(!isset($this->data['segments']['module']))
+			$this->data['segments']['module'] = '';
+
 		$this->params = self::procesaParametros($_url);
 		$this->data["params"] = $this->params;
 
@@ -69,6 +69,10 @@ final class Request extends \stdClass {
 			$this->clearCache(PATH_CACHE);
 			Reader::restart();
 		}
+	}
+
+	public static function redirect( $url ) {
+		header( 'Location: ' . BASE_URL . $url );
 	}
 
 	private function clearCache($dir) {
@@ -94,13 +98,13 @@ final class Request extends \stdClass {
 	}
 
 # Regresa los parametros
-	public static function parametros($atributo = '') {
+	public static function getParams($atributo = '') {
 		if(!self::$_instance instanceof self)
 			self::$_instance = new self();
 		if(strlen(trim($atributo)))
-			return self::$_instance->_params[$atributo];
+			return self::$_instance->params[$atributo];
 		else
-			return self::$_instance->_params;
+			return self::$_instance->params;
 	}
 
 # Nombre del atributo a usarse en los __get __set
@@ -113,13 +117,13 @@ final class Request extends \stdClass {
 
 # De los parametros recibidos se genera un arreglo único
 	private function procesaParametros($segmentos) {
-		$_params = array();
+		$params = array();
 	#GET
 		foreach ($segmentos as $key => $value) {
 			$segmentos[$key] = self::cleanGET($value);
 		}
 		while(count($segmentos)) {
-			$_params[array_shift($segmentos)] = array_shift($segmentos);
+			$params[array_shift($segmentos)] = array_shift($segmentos);
 		}
 	#POST
 		$_contenido = file_get_contents("php://input");
@@ -130,24 +134,24 @@ final class Request extends \stdClass {
 			case "application/json; charset=UTF-8":
 			if(trim($_contenido) != "") {
 				foreach (json_decode($_contenido, TRUE) as $key => $value) {
-					$_params[$key] = self::cleanPOST($value);
+					$params[$key] = self::cleanPOST($value);
 				}
 			}
 			break;
 			case "application/x-www-form-urlencoded":
 				parse_str($_contenido, $postvars);
 				foreach($postvars as $field => $value) {
-					$_params[$field] = self::cleanPOST($value);
+					$params[$field] = self::cleanPOST($value);
 				}
 			break;
 			default:
 				parse_str($_contenido, $postvars);
 				foreach($postvars as $field => $value) {
-					$_params[$field] = self::cleanPOST($value);
+					$params[$field] = self::cleanPOST($value);
 				}
 			break;
 		}
-		return $_params;
+		return $params;
 	}
 
 	private function cleanGET($valor) {

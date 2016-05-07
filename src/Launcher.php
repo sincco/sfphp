@@ -35,8 +35,7 @@ final class Launcher extends \stdClass {
 		$path .= "\\Controllers\\{$segments['controller']}";
 		$objClass = $this->_loadClass($path, $segments['controller']."Controller");
 		if(is_callable(array($objClass, $segments['action']))) {
-			//if($segments['action'] != "index")
-				call_user_func(array($objClass, $segments['action']));
+			call_user_func(array($objClass, $segments['action']));
 		}
 		else {
 			throw new \Sincco\Sfphp\Exception("ERROR :: No es posible lanzar " . implode("->", $segments), 404);
