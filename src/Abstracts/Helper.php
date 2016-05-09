@@ -14,9 +14,7 @@
 
 namespace Sincco\Sfphp\Abstracts;
 
-abstract class Controller {
-
-	private $helpers;
+abstract class Helper extends \stdClass {
 
 	public function getModel( $model ) {
 		$path = explode( '\\', $model );
@@ -26,17 +24,5 @@ abstract class Controller {
 		$class = $path[count( $path ) - 1]."Model";
 		return new $class();
 	}
-
-	public function newView( $view ) {
-		return new View( $view );
-	}
-
-	public function helper( $helper ) {
-		include_once( PATH_ROOT . '/app/Helpers/' . $helper . '.php' );
-		$class = $helper . "Helper";
-		if( !$this->helpers[ $helper ] instanceof $class )
-			$this->helpers[ $helper ] = new $class();
-		return $this->helpers[ $helper ];
-	}
-
+	
 }
