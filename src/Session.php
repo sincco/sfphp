@@ -46,8 +46,8 @@ final class Session extends \stdClass {
             if(is_null(self::get('sincco\sfphp\client\token')))
                 self::set('sincco\sfphp\client\uid', md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].$_cookie));
             else {
-                if(self::get('sincco\sfphp\client\uid') != md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].$_cookie))
-                    throw new \Sincco\Sfphp\Exception('Violacion de seguridad', 403);
+                #if(self::get('sincco\sfphp\client\uid') != md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].$_cookie))
+                #    throw new \Sincco\Sfphp\Exception('Violacion de seguridad', 403);
             }
             if(is_null(self::get('sincco\sfphp\client\token')))
                 self::set('sincco\sfphp\client\token', md5(\Sincco\Sfphp\UUID::v4()));
