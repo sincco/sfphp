@@ -110,10 +110,14 @@ class Connector extends \stdClass {
             }
             
             $this->sQuery->execute();
-        }
-        catch (\PDOException $e) {
-            echo $this->ExceptionLog($e->getMessage(), $query);
-            die();
+        } catch (\PDOException $err) {
+            $errorInfo = sprintf( '%s: %s in %s on line %s.',
+                'Database Error',
+                $err,
+                $err->getFile(),
+                $err->getLine()
+            );
+            throw new \Sincco\Sfphp\Exception($errorInfo , 403);
         }
         
         $this->parameters = array();
