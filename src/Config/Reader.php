@@ -71,7 +71,7 @@ final class Reader extends \stdClass {
 			if(!defined(strtoupper("dev_".$key)))
 				define(strtoupper("dev_".$key),$value);
 		}
-		foreach ($array["session"] as $key => $value) {
+		foreach ($array["sesion"] as $key => $value) {
 			if(!defined(strtoupper("session_".$key)))
 				define(strtoupper("session_".$key),$value);
 		}
