@@ -23,7 +23,7 @@ final class Session extends \stdClass {
 
     protected function __construct() {
             $config = Reader::get();
-            $config = $config['session'];
+            $config = $config['sesion'];
             $httponly = true;
             $session_hash = 'sha512';
             if (in_array($session_hash, hash_algos()))
