@@ -35,7 +35,7 @@ final class View extends \stdClass {
 		foreach (get_object_vars($this) as $key => $value) {
 			$params[$key] = $value;
 		}
-		return $this->template->render($this->file, $params);
+		echo $this->template->render($this->file, $params);
 	}
 
 }
