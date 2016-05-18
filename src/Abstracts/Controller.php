@@ -14,6 +14,8 @@
 
 namespace Sincco\Sfphp\Abstracts;
 
+use \Sincco\Sfphp\Request;
+
 abstract class Controller {
 
 	private $helpers;
@@ -37,6 +39,10 @@ abstract class Controller {
 		if( !$this->helpers[ $helper ] instanceof $class )
 			$this->helpers[ $helper ] = new $class();
 		return $this->helpers[ $helper ];
+	}
+
+	public function getParams( $param ) {
+		return Request::getParams( $param );
 	}
 
 }
