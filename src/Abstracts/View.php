@@ -38,4 +38,11 @@ final class View extends \stdClass {
 		echo $this->template->render($this->file, $params);
 	}
 
+	public function getContent($params = array()) {
+		$_parsed = $params;
+		foreach (get_object_vars($this) as $key => $value) {
+			$params[$key] = $value;
+		}
+		return $this->template->render($this->file, $params);
+	}
 }
