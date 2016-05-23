@@ -56,7 +56,7 @@ class Connector extends \stdClass {
                     \PDO::FB_ATTR_TIMESTAMP_FORMAT,"%d-%m-%Y",
                     \PDO::FB_ATTR_DATE_FORMAT ,"%d-%m-%Y"
                     );
-                    $this->pdo = new \PDO($this->connectionData["type"].":dbname=".$this->connectionData["host"].$this->connectionData["dbname"], $this->connectionData["user"], $this->connectionData['password'], $parametros);
+                    $this->pdo = new \PDO($this->connectionData["type"].":dbname=".$this->connectionData["host"].$this->connectionData["dbname"].";charset=UTF8", $this->connectionData["user"], $this->connectionData['password'], $parametros);
                 break;
                 default:
                     $this->pdo = new \PDO($this->connectionData["type"].":host=".$this->connectionData["host"].";dbname=".$this->connectionData["dbname"],
