@@ -32,6 +32,7 @@ final class View extends \stdClass {
 
 	public function render($params = array()) {
 		$_parsed = $params;
+		$params['_session'] = $_SESSION;
 		foreach (get_object_vars($this) as $key => $value) {
 			$params[$key] = $value;
 		}

@@ -27,4 +27,5 @@ abstract class Model extends \Sincco\Sfphp\DB\Connector {
 		$_base['password'] = Crypt::decrypt($_base['password']);
 		parent::connectionData($_base);
 	}
+
 }
