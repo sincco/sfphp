@@ -144,6 +144,8 @@ class Connector extends \stdClass {
         $idQuery = md5($query . serialize($params));
         $adapter = new File(PATH_CACHE);
         $cache = new Cache($adapter);
+        $rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
+        $statement = strtolower($rawStatement[0]);
         if(!defined('DEV_CACHE')) {
             if(!is_null($cache->get($this->connectionData['type'].$idQuery))) {
                 $reponse = $cache->get($this->connectionData['type'].$idQuery);
@@ -151,14 +153,20 @@ class Connector extends \stdClass {
         }
         if(!$response) {
             $this->Init($query, $params);
-            $rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
-            $statement = strtolower($rawStatement[0]);
-            if ($statement === 'select' || $statement === 'show') {
-                $response = $this->sQuery->fetchAll($fetchmode);
-            } elseif ($statement === 'insert' || $statement === 'update' || $statement === 'delete') {
-                $response = $this->sQuery->rowCount();
-            } else {
-                $response = NULL;
+            switch ( $statement ) {
+                case 'select':
+                case 'show':
+                    $response = $this->sQuery->fetchAll($fetchmode);
+                    break;
+                case 'insert':
+                    $response = $this->pdo->lastInsertId();
+                    break;
+                case 'update':
+                case 'delete':
+                    $response = $this->sQuery->rowCount();
+                default:
+                    $response = NULL;
+                    break;
             }
         }
         if(!defined('DEV_CACHE'))
