@@ -17,15 +17,12 @@ namespace Sincco\Sfphp\Abstracts;
 use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Crypt;
 
-abstract class Model extends \Sincco\Sfphp\DB\Connector {
-	protected $db;
-	protected $_campos = array();
+abstract class Model extends \Sincco\Sfphp\DB\Crud {
 	
-	public function __construct($dataBase = 'default') {
-		$_config = Reader::get('bases');
-		$_base = $_config[$dataBase];
-		$_base['password'] = Crypt::decrypt($_base['password']);
-		parent::connectionData($_base);
+	public function __construct( $dataBase = 'default' ) {
+		$_config = Reader::get( 'bases' );
+		$base = $_config[ $dataBase ];
+		$base[ 'password' ] = Crypt::decrypt( $base[ 'password' ] );
+		parent::connect( $base );
 	}
-
 }

@@ -9,225 +9,54 @@
 # @author: Iván Miranda
 # @version: 1.0.0
 # -----------------------
-# Ejecución de eventos según la petición realizada desde el navegador
+# Create a new PDO connection
 # -----------------------
 
 namespace Sincco\Sfphp\DB;
 
-use Sincco\Sfphp\Logger;
-use Desarrolla2\Cache\Cache;
-use Desarrolla2\Cache\Adapter\File;
+class Connector extends \PDO {
 
-class Connector extends \stdClass {
-	private $pdo;
-	private $sQuery;
-	private $settings;
-	private $bConnected = false;
-	private $log;
-	private $parameters;
-	private $connectionData;
-    private $cache;
-
-    public function connectionData($data) {
-    	$this->connectionData = $data;
-    }
-    
-    private function connect() {
-        if(!isset($this->connectionData["charset"]))
-            $this->connectionData["charset"] = "utf8";
-        $parametros = array();
-        if($this->connectionData["type"] == "mysql")
-            $parametros = array(\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '. $this->connectionData["charset"]);
+    public function __construct( $connectionData ) {
+        $connection = NULL;
+        if(!isset($connectionData["charset"]))
+            $connectionData["charset"] = "utf8";
+        $params = array();
+        if($connectionData["type"] == "mysql")
+            $params = array(self::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '. $connectionData["charset"]);
         else
-            $parametros = array();
+            $params = array();
         try {
 
-            switch ($this->connectionData["type"]) {
+            switch ($connectionData["type"]) {
                 case 'sqlsrv':
-                    $this->pdo = new \PDO($this->connectionData["type"].":Server=".$this->connectionData["host"].";",
-                    $this->connectionData["user"], $this->connectionData['password'], $parametros);
+                    $hostname = $connectionData["type"].":Server=".$connectionData["host"].";";
                 break;
                 case 'mysql':
-                    $this->pdo = new \PDO($this->connectionData["type"].":host=".$this->connectionData["host"].";dbname=".$this->connectionData["dbname"],
-                    $this->connectionData["user"], $this->connectionData['password'], $parametros);
+                    $hostname = $connectionData["type"].":host=".$connectionData["host"].";dbname=".$connectionData["dbname"];
                 break;
                 case 'firebird':
-                    $parametros = array(
-                    \PDO::FB_ATTR_TIMESTAMP_FORMAT,"%d-%m-%Y",
-                    \PDO::FB_ATTR_DATE_FORMAT ,"%d-%m-%Y"
+                    $params = array(
+                    self::FB_ATTR_TIMESTAMP_FORMAT,"%d-%m-%Y",
+                    self::FB_ATTR_DATE_FORMAT ,"%d-%m-%Y"
                     );
-                    $this->pdo = new \PDO($this->connectionData["type"].":dbname=".$this->connectionData["host"].$this->connectionData["dbname"].";charset=UTF8", $this->connectionData["user"], $this->connectionData['password'], $parametros);
+                    $hostname = $connectionData["type"].":dbname=".$connectionData["host"].$connectionData["dbname"].";charset=UTF8";
                 break;
                 default:
-                    $this->pdo = new \PDO($this->connectionData["type"].":host=".$this->connectionData["host"].";dbname=".$this->connectionData["dbname"],
-                    $this->connectionData["user"], $this->connectionData['password']);
+                    $hostname = $connectionData["type"].":host=".$connectionData["host"].";dbname=".$connectionData["dbname"];
                 break;
             }
-            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $this->pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-            $this->bConnected = true;
-        } catch (\PDOException $err) {
+            parent::__construct($hostname,$connectionData[ 'user' ],$connectionData[ 'password' ]);
+            $this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
+            $this->setAttribute(self::ATTR_EMULATE_PREPARES, false);
+        } catch (selfException $err) {
             $errorInfo = sprintf( '%s: %s in %s on line %s.',
                 'Database Error',
                 $err,
                 $err->getFile(),
                 $err->getLine()
             );
-            throw new \Sincco\Sfphp\Exception($errorInfo , 403);
+            var_dump($errorInfo);
+            //throw new \Sincco\Sfphp\Exception($errorInfo , 403);
         }
     }
-
-    public function CloseConnection() {
-        $this->pdo = null;
-    }
-    
-    private function Init($query, $parameters = "") {
-        if (!$this->bConnected) {
-            $this->Connect();
-        }
-        try {
-            $this->sQuery = $this->pdo->prepare($query);
-            
-            $this->bindMore($parameters);
-            
-            if (!empty($this->parameters)) {
-                foreach ($this->parameters as $param => $value) {
-                    
-                    $type = \PDO::PARAM_STR;
-                    switch ($value[1]) {
-                        case is_int($value[1]):
-                            $type = \PDO::PARAM_INT;
-                            break;
-                        case is_bool($value[1]):
-                            $type = \PDO::PARAM_BOOL;
-                            break;
-                        case is_null($value[1]):
-                            $type = \PDO::PARAM_NULL;
-                            break;
-                    }
-                    $this->sQuery->bindValue($value[0], $value[1], $type);
-                }
-            }
-            
-            $this->sQuery->execute();
-        } catch (\PDOException $err) {
-            $errorInfo = sprintf( '%s: %s in %s on line %s.',
-                'Database Error',
-                $err,
-                $err->getFile(),
-                $err->getLine()
-            );
-            throw new \Sincco\Sfphp\Exception($errorInfo , 403);
-        }
-        
-        $this->parameters = array();
-    }
-    
-    public function bind($para, $value) {
-        $this->parameters[sizeof($this->parameters)] = [":" . $para , $value];
-    }
-
-    public function bindMore($parray) {
-        if (empty($this->parameters) && is_array($parray)) {
-            $columns = array_keys($parray);
-            foreach ($columns as $i => &$column) {
-                $this->bind($column, $parray[$column]);
-            }
-        }
-    }
-    
-    public function query($query, $params = null, $fetchmode = \PDO::FETCH_ASSOC) {
-        $response = false;
-    	if(!is_a($this->pdo, 'PDO'))
-    		$this->connect();
-        $query = trim(str_replace("\r", " ", $query));
-        $idQuery = md5($query . serialize($params));
-        $adapter = new File(PATH_CACHE);
-        $cache = new Cache($adapter);
-        $rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
-        $statement = strtolower($rawStatement[0]);
-        if(!defined('DEV_CACHE')) {
-            if(!is_null($cache->get($this->connectionData['type'].$idQuery))) {
-                $reponse = $cache->get($this->connectionData['type'].$idQuery);
-            }
-        }
-        if(!$response) {
-            $this->Init($query, $params);
-            switch ( $statement ) {
-                case 'select':
-                case 'show':
-                    $response = $this->sQuery->fetchAll($fetchmode);
-                    break;
-                case 'insert':
-                    $response = $this->pdo->lastInsertId();
-                    break;
-                case 'update':
-                case 'delete':
-                    $response = $this->sQuery->rowCount();
-                default:
-                    $response = NULL;
-                    break;
-            }
-        }
-        if(!defined('DEV_CACHE'))
-            $cache->set($this->connectionData['type'].$idQuery, $response);
-        return $response;
-    }
-    
-    public function lastInsertId() {
-        return $this->pdo->lastInsertId();
-    }
-    
-    public function beginTransaction() {
-        return $this->pdo->beginTransaction();
-    }
-    
-    public function executeTransaction() {
-        return $this->pdo->commit();
-    }
-    
-    public function rollBack() {
-        return $this->pdo->rollBack();
-    }
-    
-    public function column($query, $params = null) {
-        $this->Init($query, $params);
-        $Columns = $this->sQuery->fetchAll(\PDO::FETCH_NUM);
-        
-        $column = null;
-        
-        foreach ($Columns as $cells) {
-            $column[] = $cells[0];
-        }
-        
-        return $column;
-    }
-
-    public function row($query, $params = null, $fetchmode = \PDO::FETCH_ASSOC) {
-        $this->Init($query, $params);
-        $result = $this->sQuery->fetch($fetchmode);
-        $this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued,
-        return $result;
-    }
-
-    public function single($query, $params = null) {
-        $this->Init($query, $params);
-        $result = $this->sQuery->fetchColumn();
-        $this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
-        return $result;
-    }
-
-    private function ExceptionLog($message, $sql = "") {
-        $exception = 'Unhandled Exception. <br />';
-        $exception .= $message;
-        $exception .= "<br /> You can find the error back in the log.";
-        
-        if (!empty($sql)) {
-            $message .= "\r\nRaw SQL : " . $sql;
-        }
-        $this->log->write($message);
-        
-        return $exception;
-    }
-
 }

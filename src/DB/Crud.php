@@ -14,13 +14,52 @@
 
 namespace Sincco\Sfphp\DB;
 
+use Sincco\Sfphp\DB\DataManager;
+use Sincco\Tools\Singleton;
+
 class Crud extends \stdClass {
+	protected $connector;
+	private $table;
+	private $query;
+
 	private $db;
 	public $variables;
-	public function __construct($data = array()) {
-		$this->db =  new \Sincco\Sfphp\DB\Connector();	
-		$this->variables  = $data;
+
+	/**
+	 * Connects to a database
+	 * @param  array  $data Connection information [type][host][user][dbname][password]
+	 * @return [type]       [description]
+	 */
+	public function connect($data = array()) {
+		$this->connector =  Singleton::get( 'Sincco\Sfphp\DB\DataManager', $data, $data[ 'dbname' ] );
 	}
+
+	/**
+	 * Set table for CRUD
+	 * @param string $table Table name
+	 */
+	public function setTable( $table ) {
+		$this->table = $table;
+	}
+
+	/**
+	 * Get table for CRUD
+	 * @return string
+	 */
+	public function getTable() {
+		return $this->table;
+	}
+
+	/**
+	 * Return all data on table
+	 * @return array
+	 */
+	public function getAll() {
+		$query = 'SELECT * FROM ' . $this->table;
+		return $this->connector->query( $query );
+	}
+
+
 	public function __set($name,$value){
 		if(strtolower($name) === $this->pk) {
 			$this->variables[$this->pk] = $value;
@@ -82,7 +121,7 @@ class Crud extends \stdClass {
 		if(!empty($id)) {
 			$sql = "SELECT * FROM " . $this->table ." WHERE " . $this->pk . "= :" . $this->pk . " LIMIT 1";	
 			
-			$result = $this->db->row($sql, array($this->pk=>$id));
+			$result = $this->connector->row($sql, array($this->pk=>$id));
 			$this->variables = ($result != false) ? $result : null;
 		}
 	}
@@ -119,43 +158,45 @@ class Crud extends \stdClass {
 		return $this->exec($sql);
 	}
 	public function all(){
-		return $this->db->query("SELECT * FROM " . $this->table);
+		return $this->connector->query("SELECT * FROM " . $this->table);
 	}
 	
 	public function min($field)  {
 		if($field)
-		return $this->db->single("SELECT min(" . $field . ")" . " FROM " . $this->table);
+		return $this->connector->single("SELECT min(" . $field . ")" . " FROM " . $this->table);
 	}
 	public function max($field)  {
 		if($field)
-		return $this->db->single("SELECT max(" . $field . ")" . " FROM " . $this->table);
+		return $this->connector->single("SELECT max(" . $field . ")" . " FROM " . $this->table);
 	}
 	public function avg($field)  {
 		if($field)
-		return $this->db->single("SELECT avg(" . $field . ")" . " FROM " . $this->table);
+		return $this->connector->single("SELECT avg(" . $field . ")" . " FROM " . $this->table);
 	}
 	public function sum($field)  {
 		if($field)
-		return $this->db->single("SELECT sum(" . $field . ")" . " FROM " . $this->table);
+		return $this->connector->single("SELECT sum(" . $field . ")" . " FROM " . $this->table);
 	}
 	public function count($field)  {
 		if($field)
-		return $this->db->single("SELECT count(" . $field . ")" . " FROM " . $this->table);
+		return $this->connector->single("SELECT count(" . $field . ")" . " FROM " . $this->table);
 	}	
 	
+	/*
 	private function exec($sql, $array = null) {
 		
 		if($array !== null) {
 			// Get result with the DB object
-			$result =  $this->db->query($sql, $array);	
+			$result =  $this->connector->query($sql, $array);	
 		}
 		else {
 			// Get result with the DB object
-			$result =  $this->db->query($sql, $this->variables);	
+			$result =  $this->connector->query($sql, $this->variables);	
 		}
 		
 		// Empty bindings
 		$this->variables = array();
 		return $result;
 	}
+	*/
 }

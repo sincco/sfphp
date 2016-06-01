@@ -14,7 +14,8 @@
 
 namespace Sincco\Sfphp\Abstracts;
 
-use \Sincco\Sfphp\Request;
+use Sincco\Sfphp\Request;
+use Sincco\Tools\Singleton;
 
 abstract class Controller {
 
@@ -26,19 +27,17 @@ abstract class Controller {
 		$path[count( $path ) - 2] = 'Models';
 		include_once( PATH_ROOT . '/app/' . implode( '/', $path ) . '.php' );
 		$class = $path[count( $path ) - 1]."Model";
-		return new $class();
+		return Singleton::get( $class );
 	}
 
 	public function newView( $view ) {
-		return new View( $view );
+		return Singleton::get( 'Sincco\Sfphp\Abstracts\View', $view, $view );
 	}
 
 	public function helper( $helper ) {
 		include_once( PATH_ROOT . '/app/Helpers/' . $helper . '.php' );
 		$class = $helper . "Helper";
-		if( !$this->helpers[ $helper ] instanceof $class )
-			$this->helpers[ $helper ] = new $class();
-		return $this->helpers[ $helper ];
+		return Singleton::get( $class );
 	}
 
 	public function getParams( $param ) {
