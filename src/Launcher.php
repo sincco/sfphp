@@ -14,6 +14,7 @@
 
 namespace Sincco\Sfphp;
 
+use Sincco\Sfphp\Debug;
 use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Request;
 
@@ -22,7 +23,10 @@ final class Launcher extends \stdClass {
 		$_config = Reader::get('app');
 		if(isset($_config['timezone']))
 			date_default_timezone_set($_config['timezone']);
-		
+
+		Debug::path( PATH_LOGS );
+		Debug::reporting( DEV_SHOWERRORS );
+
 		$path = "";
 		$segments = Request::get('segments');
 
@@ -38,7 +42,7 @@ final class Launcher extends \stdClass {
 			call_user_func(array($objClass, $segments['action']));
 		}
 		else {
-			throw new \Sincco\Sfphp\Exception("ERROR :: No es posible lanzar " . implode("->", $segments), 404);
+			Debug::dump( "ERROR :: No es posible lanzar " . implode("->", $segments) );
 		}
 	}
 

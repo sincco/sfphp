@@ -15,7 +15,7 @@
 namespace Sincco\Sfphp\DB;
 
 use Sincco\Sfphp\DB\Connector;
-use Sincco\Sfphp\Logger;
+use Sincco\Tools\Debug;
 use Desarrolla2\Cache\Cache;
 use Desarrolla2\Cache\Adapter\File;
 
@@ -55,14 +55,14 @@ class DataManager extends Connector {
             }
             
             $this->sQuery->execute();
-        } catch (selfException $err) {
+        } catch (\PDOException $err) {
             $errorInfo = sprintf( '%s: %s in %s on line %s.',
                 'Database Error',
                 $err,
                 $err->getFile(),
                 $err->getLine()
             );
-            throw new \Sincco\Sfphp\Exception($errorInfo , 403);
+            Debug::dump( $errorInfo );
         }
         
         $this->parameters = array();
@@ -102,7 +102,7 @@ class DataManager extends Connector {
                     $response = $this->sQuery->fetchAll($fetchmode);
                     break;
                 case 'insert':
-                    $response = $this->lastInsertId();
+                    $response = $this->insertId();
                     break;
                 case 'update':
                 case 'delete':
@@ -117,7 +117,7 @@ class DataManager extends Connector {
         return $response;
     }
     
-    public function lastInsertId() {
+    public function insertId() {
         return $this->lastInsertId();
     }
     
@@ -159,18 +159,4 @@ class DataManager extends Connector {
         $this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
         return $result;
     }
-
-    private function ExceptionLog($message, $sql = "") {
-        $exception = 'Unhandled Exception. <br />';
-        $exception .= $message;
-        $exception .= "<br /> You can find the error back in the log.";
-        
-        if (!empty($sql)) {
-            $message .= "\r\nRaw SQL : " . $sql;
-        }
-        $this->log->write($message);
-        
-        return $exception;
-    }
-
 }

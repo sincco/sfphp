@@ -48,15 +48,14 @@ class Connector extends \PDO {
             parent::__construct($hostname,$connectionData[ 'user' ],$connectionData[ 'password' ]);
             $this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
             $this->setAttribute(self::ATTR_EMULATE_PREPARES, false);
-        } catch (selfException $err) {
+        } catch (\PDOException $err) {
             $errorInfo = sprintf( '%s: %s in %s on line %s.',
                 'Database Error',
                 $err,
                 $err->getFile(),
                 $err->getLine()
             );
-            var_dump($errorInfo);
-            //throw new \Sincco\Sfphp\Exception($errorInfo , 403);
+            Debug::dump( $errorInfo );
         }
     }
 }

@@ -14,10 +14,15 @@
         {
             "type": "vcs",
             "url": "git@github.com:sincco/singleton.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:sincco/debug.git"
         }
     ],
     "require": {
         "sincco/singleton": "dev-master",
+        "sincco/debug": "dev-master",
         "desarrolla2/cache":  "~2.0",
         "twig/twig": "~1.0"
     },

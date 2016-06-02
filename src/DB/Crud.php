@@ -14,95 +14,142 @@
 
 namespace Sincco\Sfphp\DB;
 
-use Sincco\Sfphp\DB\DataManager;
 use Sincco\Tools\Singleton;
 
 class Crud extends \stdClass {
+// PDO
 	protected $connector;
-	private $table;
-	private $query;
+// Query segments
+	private $table 	= NULL;
+	private $where 	= array();
+	private $joins	= array();
+	private $order 	= array();
+	private $fields = array();
+// Params to be parsed
+	private $params = array();
+// Actual query
+	private $query 	= NULL;
 
-	private $db;
-	private $fields;
 
-	/**
-	 * Connects to a database
-	 * @param  array  $data Connection information [type][host][user][dbname][password]
-	 * @return [type]       [description]
-	 */
 	public function connect($data = array()) {
 		$this->connector =  Singleton::get( 'Sincco\Sfphp\DB\DataManager', $data, $data[ 'dbname' ] );
 	}
 
-	/**
-	 * Set table for CRUD
-	 * @param string $table Table name
-	 */
-	public function setTable( $table ) {
-		$this->table = $table;
-	}
-
-	/**
-	 * Get table for CRUD
-	 * @return string
-	 */
-	public function getTable() {
-		return $this->table;
-	}
-
-	/**
-	 * Return all data on table
-	 * @return array
-	 */
-	public function getAll() {
-		$query = 'SELECT * FROM ' . $this->table;
-		return $this->connector->query( $query );
-	}
-
-	public function getSql() {
-		var_dump($this->fields);
-	}
-
-	public function init() {
-		$this->fields 	= [];
-		$this->query 	= NULL;
-	}
-
-	/**
-	 * Returns a result for table $name.
-	 * If $id is given, return the row with that id.
-	 *
-	 * Examples:
-	 * $db->user()->where( ... )
-	 * $db->user( 1 )
-	 *
-	 * @param string $name
-	 * @param array $args
-	 * @return Result|Row|null
-	 */
 	function __call( $name, $args ) {
 		array_unshift( $args, $name );
 		return call_user_func_array( array( $this, 'table' ), $args );
 	}
 
-
-	public function __set($name,$value){
-		if(strtolower($name) === $this->pk) {
-			$this->fields[$this->pk] = $value;
-		}
-		else {
-			$this->fields[$name] = $value;
-		}
+	public function init() {
+		$this->where 	= array();
+		$this->joins	= array();
+		$this->order 	= array();
+		$this->fields 	= array();
+		$this->params = array();
+		$this->query 	= NULL;
 	}
-	public function __get($name)
-	{	
-		if(is_array($this->fields)) {
-			if(array_key_exists($name,$this->fields)) {
-				return $this->fields[$name];
+
+	public function table( $name ) {
+		$this->params = array();
+		$this->table = $name;
+		return $this;
+	}
+
+	public function fields( $fields = array(), $table = 'maintable' ) {
+		array_push( $this->fields, $table . '.' . $fields );
+		return $this;
+	}
+
+	public function join( $table, $on, $type = 'INNER') {
+		array_push( $this->joins, serialize( array( $table, $on, $type ) ) );
+		return $this;
+	}
+
+	public function where( $fields, $values, $table = 'maintable', $logical = ' = ', $condition = ' AND ' ) {
+		array_push( $this->where, serialize( array( $fields, $values, $table, $logical, $condition ) ) );
+		array_push( $this->params, array( 'where' . $fields=>$values ) );
+		return $this;
+	}
+
+	public function order( $fields, $order = ' ASC ' ) {
+		array_push( $this->order, serialize( array( $fields, $order ) ) );
+		return $this;
+	}
+
+	public function getCollection() {
+		$params = array();
+		foreach ( $this->params as $param ) {
+			foreach ( $param as $key => $value ) {
+				$params[ $key ] = $value;
 			}
 		}
-		return null;
+		$this->generateSql();
+		$data = $this->connector->query( $this->query, $params );
+		$result = array();
+		foreach ( $data as $row ) {
+			$object = new \stdClass();
+			foreach ( $row as $key => $value ) {
+				$object->$key = $value;
+			}
+			array_push( $result, $object );
+		}
+		return $result;
 	}
+
+	public function getData() {
+		$params = array();
+		foreach ( $this->params as $param ) {
+			foreach ( $param as $key => $value ) {
+				$params[ $key ] = $value;
+			}
+		}
+		$this->generateSql();
+		return $this->connector->query( $this->query, $params );
+	}
+
+	/**
+	 * Create an SQL instruction w/all segments defined
+	 * @return string
+	 */
+	private function generateSql() {
+		$query = 'SELECT ';
+		if( array_count_values( $this->fields) )
+			$query .= implode( ', ', $this->fields );
+		else
+			$query .= '*';
+	// FROM
+		if( ! is_null( $this->table ) )
+			$query .= ' FROM ' . $this->table . ' AS maintable ';
+	// JOINS
+		$joins = '';
+		foreach ( $this->joins as $join ) {
+			$join = unserialize( $join );
+			$joins .= ' ' . $join[2] . ' JOIN ' . $join[0] . ' ON (' . $join[1] . ') ';
+		}
+		if( strlen( trim( $joins ) ) )
+			$query .= $joins;
+	// WHERE
+		$wheres = '';
+		foreach ( $this->where as $where ) {
+			$where = unserialize( $where );
+			$wheres .= ( strlen( trim( $wheres ) ) ? $where[4] : '' ) . $where[2] . '.' . $where[0] . $where[3] . ':where' . $where[0];
+		}
+		if( strlen( trim( $wheres ) ) )
+			$query .= ' WHERE ' . $wheres;
+	// ORDER
+		$orders = '';
+		foreach ( $this->order as $order ) {
+			$order = unserialize( $order );
+			$orders .= $order[0] . $order[1];
+		}
+		if( strlen( trim( $orders ) ) )
+			$query .= ' ORDER BY ' . $orders;
+		$this->query = $query;
+
+		return $query;
+	}
+
+	/*
 	public function save($id = "0") {
 		$this->fields[$this->pk] = (empty($this->fields[$this->pk])) ? $id : $this->fields[$this->pk];
 		$fieldsvals = '';
@@ -151,17 +198,7 @@ class Crud extends \stdClass {
 			$this->fields = ($result != false) ? $result : null;
 		}
 	}
-	/**
-	* @param array $fields.
-	* @param array $sort.
-	* @return array of Collection.
-	* Example: $user = new User;
-	* $found_user_array = $user->search(array('sex' => 'Male', 'age' => '18'), array('dob' => 'DESC'));
-	* // Will produce: SELECT * FROM {$this->table_name} WHERE sex = :sex AND age = :age ORDER BY dob DESC;
-	* // And rest is binding those params with the Query. Which will return an array.
-	* // Now we can use for each on $found_user_array.
-	* Other functionalities ex: Support for LIKE, >, <, >=, <= ... Are not yet supported.
-	*/
+
 	public function search($fields = array(), $sort = array()) {
 		$bindings = empty($fields) ? $this->fields : $fields;
 		$sql = "SELECT * FROM " . $this->table;
@@ -185,56 +222,7 @@ class Crud extends \stdClass {
 	}
 	public function all(){
 		return $this->connector->query("SELECT * FROM " . $this->table);
-	}
-	
-	public function min($field)  {
-		if($field)
-		return $this->connector->single("SELECT min(" . $field . ")" . " FROM " . $this->table);
-	}
-	public function max($field)  {
-		if($field)
-		return $this->connector->single("SELECT max(" . $field . ")" . " FROM " . $this->table);
-	}
-	public function avg($field)  {
-		if($field)
-		return $this->connector->single("SELECT avg(" . $field . ")" . " FROM " . $this->table);
-	}
-	public function sum($field)  {
-		if($field)
-		return $this->connector->single("SELECT sum(" . $field . ")" . " FROM " . $this->table);
-	}
-	public function count($field)  {
-		if($field)
-		return $this->connector->single("SELECT count(" . $field . ")" . " FROM " . $this->table);
 	}	
-	
-	/**
-	 * Returns a result for table $name.
-	 * If $id is given, return the row with that id.
-	 *
-	 * @param $name
-	 * @param int|null $id
-	 * @return Result|Row|null
-	 */
-	public function table( $name, $id = null ) {
-		var_dump($name,$id);
-		// ignore List suffix
-		/*$name = preg_replace( '/List$/', '', $name );
-		if ( $id !== null ) {
-			$result = $this->createResult( $this, $name );
-			if ( !is_array( $id ) ) {
-				$table = $this->getAlias( $name );
-				$primary = $this->getPrimary( $table );
-				$id = array( $primary => $id );
-			}
-			return $result->where( $id )->fetch();
-		}
-		return $this->createResult( $this, $name );
-		*/
-	}
-
-	public function where( $fields, $values, $condition ) {
-		var_dump($fields,$values,$condition);
-	}
+	*/
 
 }
