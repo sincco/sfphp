@@ -15,3 +15,14 @@ SimpleFramework(for)PHP
     }
 }
 ```
+
+### CRUD
+
+```
+$model->empresas()
+    ->where( 'estatus', 'Activa' )
+    ->where( 'empresa', '01' )
+    ->join( 'usuariosEmpresas usr', 'usr.empresa = maintable.empresa' )
+    ->order( 'razonSocial' );
+Debug::log($model->getCollection());
+```

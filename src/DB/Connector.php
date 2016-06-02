@@ -45,7 +45,7 @@ class Connector extends \PDO {
                     $hostname = $connectionData["type"].":host=".$connectionData["host"].";dbname=".$connectionData["dbname"];
                 break;
             }
-            parent::__construct($hostname,$connectionData[ 'user' ],$connectionData[ 'password' ]);
+            parent::__construct( $hostname, $connectionData[ 'user' ], $connectionData[ 'password' ], $params);
             $this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
             $this->setAttribute(self::ATTR_EMULATE_PREPARES, false);
         } catch (\PDOException $err) {

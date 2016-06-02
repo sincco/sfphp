@@ -14,9 +14,9 @@
 
 namespace Sincco\Sfphp;
 
-use Sincco\Sfphp\Debug;
 use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Request;
+use Sincco\Tools\Debug;
 
 final class Launcher extends \stdClass {
 	public function __construct() {
