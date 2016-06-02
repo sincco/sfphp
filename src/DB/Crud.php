@@ -23,7 +23,7 @@ class Crud extends \stdClass {
 	private $query;
 
 	private $db;
-	public $variables;
+	private $fields;
 
 	/**
 	 * Connects to a database
@@ -59,28 +59,54 @@ class Crud extends \stdClass {
 		return $this->connector->query( $query );
 	}
 
+	public function getSql() {
+		var_dump($this->fields);
+	}
+
+	public function init() {
+		$this->fields 	= [];
+		$this->query 	= NULL;
+	}
+
+	/**
+	 * Returns a result for table $name.
+	 * If $id is given, return the row with that id.
+	 *
+	 * Examples:
+	 * $db->user()->where( ... )
+	 * $db->user( 1 )
+	 *
+	 * @param string $name
+	 * @param array $args
+	 * @return Result|Row|null
+	 */
+	function __call( $name, $args ) {
+		array_unshift( $args, $name );
+		return call_user_func_array( array( $this, 'table' ), $args );
+	}
+
 
 	public function __set($name,$value){
 		if(strtolower($name) === $this->pk) {
-			$this->variables[$this->pk] = $value;
+			$this->fields[$this->pk] = $value;
 		}
 		else {
-			$this->variables[$name] = $value;
+			$this->fields[$name] = $value;
 		}
 	}
 	public function __get($name)
 	{	
-		if(is_array($this->variables)) {
-			if(array_key_exists($name,$this->variables)) {
-				return $this->variables[$name];
+		if(is_array($this->fields)) {
+			if(array_key_exists($name,$this->fields)) {
+				return $this->fields[$name];
 			}
 		}
 		return null;
 	}
 	public function save($id = "0") {
-		$this->variables[$this->pk] = (empty($this->variables[$this->pk])) ? $id : $this->variables[$this->pk];
+		$this->fields[$this->pk] = (empty($this->fields[$this->pk])) ? $id : $this->fields[$this->pk];
 		$fieldsvals = '';
-		$columns = array_keys($this->variables);
+		$columns = array_keys($this->fields);
 		foreach($columns as $column)
 		{
 			if($column !== $this->pk)
@@ -89,8 +115,8 @@ class Crud extends \stdClass {
 		$fieldsvals = substr_replace($fieldsvals , '', -1);
 		if(count($columns) > 1 ) {
 			$sql = "UPDATE " . $this->table .  " SET " . $fieldsvals . " WHERE " . $this->pk . "= :" . $this->pk;
-			if($id === "0" && $this->variables[$this->pk] === "0") { 
-				unset($this->variables[$this->pk]);
+			if($id === "0" && $this->fields[$this->pk] === "0") { 
+				unset($this->fields[$this->pk]);
 				$sql = "UPDATE " . $this->table .  " SET " . $fieldsvals;
 			}
 			return $this->exec($sql);
@@ -98,7 +124,7 @@ class Crud extends \stdClass {
 		return null;
 	}
 	public function create() { 
-		$bindings   	= $this->variables;
+		$bindings   	= $this->fields;
 		if(!empty($bindings)) {
 			$fields     =  array_keys($bindings);
 			$fieldsvals =  array(implode(",",$fields),":" . implode(",:",$fields));
@@ -110,19 +136,19 @@ class Crud extends \stdClass {
 		return $this->exec($sql);
 	}
 	public function delete($id = "") {
-		$id = (empty($this->variables[$this->pk])) ? $id : $this->variables[$this->pk];
+		$id = (empty($this->fields[$this->pk])) ? $id : $this->fields[$this->pk];
 		if(!empty($id)) {
 			$sql = "DELETE FROM " . $this->table . " WHERE " . $this->pk . "= :" . $this->pk. " LIMIT 1" ;
 		}
 		return $this->exec($sql, array($this->pk=>$id));
 	}
 	public function find($id = "") {
-		$id = (empty($this->variables[$this->pk])) ? $id : $this->variables[$this->pk];
+		$id = (empty($this->fields[$this->pk])) ? $id : $this->fields[$this->pk];
 		if(!empty($id)) {
 			$sql = "SELECT * FROM " . $this->table ." WHERE " . $this->pk . "= :" . $this->pk . " LIMIT 1";	
 			
 			$result = $this->connector->row($sql, array($this->pk=>$id));
-			$this->variables = ($result != false) ? $result : null;
+			$this->fields = ($result != false) ? $result : null;
 		}
 	}
 	/**
@@ -137,7 +163,7 @@ class Crud extends \stdClass {
 	* Other functionalities ex: Support for LIKE, >, <, >=, <= ... Are not yet supported.
 	*/
 	public function search($fields = array(), $sort = array()) {
-		$bindings = empty($fields) ? $this->variables : $fields;
+		$bindings = empty($fields) ? $this->fields : $fields;
 		$sql = "SELECT * FROM " . $this->table;
 		if (!empty($bindings)) {
 			$fieldsvals = array();
@@ -182,21 +208,33 @@ class Crud extends \stdClass {
 		return $this->connector->single("SELECT count(" . $field . ")" . " FROM " . $this->table);
 	}	
 	
-	/*
-	private function exec($sql, $array = null) {
-		
-		if($array !== null) {
-			// Get result with the DB object
-			$result =  $this->connector->query($sql, $array);	
+	/**
+	 * Returns a result for table $name.
+	 * If $id is given, return the row with that id.
+	 *
+	 * @param $name
+	 * @param int|null $id
+	 * @return Result|Row|null
+	 */
+	public function table( $name, $id = null ) {
+		var_dump($name,$id);
+		// ignore List suffix
+		/*$name = preg_replace( '/List$/', '', $name );
+		if ( $id !== null ) {
+			$result = $this->createResult( $this, $name );
+			if ( !is_array( $id ) ) {
+				$table = $this->getAlias( $name );
+				$primary = $this->getPrimary( $table );
+				$id = array( $primary => $id );
+			}
+			return $result->where( $id )->fetch();
 		}
-		else {
-			// Get result with the DB object
-			$result =  $this->connector->query($sql, $this->variables);	
-		}
-		
-		// Empty bindings
-		$this->variables = array();
-		return $result;
+		return $this->createResult( $this, $name );
+		*/
 	}
-	*/
+
+	public function where( $fields, $values, $condition ) {
+		var_dump($fields,$values,$condition);
+	}
+
 }
