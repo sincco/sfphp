@@ -102,7 +102,7 @@ final class Request extends \stdClass {
 		if(!self::$_instance instanceof self)
 			self::$_instance = new self();
 		if(strlen(trim($atributo)))
-			return self::$_instance->params[$atributo];
+			return ( isset(self::$_instance->params[$atributo]) ? self::$_instance->params[$atributo] : NULL );
 		else
 			return self::$_instance->params;
 	}
