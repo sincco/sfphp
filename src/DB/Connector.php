@@ -14,6 +14,8 @@
 
 namespace Sincco\Sfphp\DB;
 
+use Sincco\Tools\Debug;
+
 class Connector extends \PDO {
 
     public function __construct( $connectionData ) {
