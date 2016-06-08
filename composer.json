@@ -10,19 +10,10 @@
             "email": "ivan.miranda@sincco.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:sincco/singleton.git"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:sincco/debug.git"
-        }
-    ],
     "require": {
-        "sincco/singleton": "dev-master",
-        "sincco/debug": "dev-master",
+        "php": "^5.3.3 || ^7.0",
+        "sincco/singleton": "~1.0",
+        "sincco/debug": "~1.0",
         "desarrolla2/cache":  "~2.0",
         "twig/twig": "~1.0"
     },
