@@ -99,7 +99,7 @@ class DataManager extends Connector {
             switch ( $statement ) {
                 case 'select':
                 case 'show':
-                    $response = $this->sQuery->fetchAll($fetchmode);
+                    $response = $this->sQuery->fetchAll( $fetchmode );
                     break;
                 case 'insert':
                     $response = $this->insertId();
