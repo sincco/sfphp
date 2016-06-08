@@ -38,7 +38,7 @@ final class Session extends \stdClass {
             session_save_path(PATH_SESSION);
             session_name($config['name']);
             session_start();
-            $_cookie = $_SERVER['HTTP_COOKIE'];
+            $_cookie = ( isset( $_SERVER['HTTP_COOKIE'] ) ) ? $_SERVER['HTTP_COOKIE'] : "" ;
             if(trim($_cookie) == "")
                 $_cookie = $config['name'] . "=" . session_id();
             self::set('sincco\sfphp\client\browser', $_SERVER['HTTP_USER_AGENT']);
