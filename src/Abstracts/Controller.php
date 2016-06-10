@@ -40,8 +40,12 @@ abstract class Controller {
 		return Singleton::get( $class );
 	}
 
-	public function getParams( $param ) {
+	public function getParams( $param = '' ) {
 		return Request::getParams( $param );
+	}
+
+	public function getRequest() {
+		return Request::get();
 	}
 
 }
