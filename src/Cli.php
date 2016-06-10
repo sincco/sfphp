@@ -38,6 +38,7 @@ final class Cli extends \stdClass {
 
 		Debug::path( PATH_LOGS );
 		Debug::reporting( DEV_SHOWERRORS );
+		Debug::cli( 1 );
 
 		$path = "";
 
