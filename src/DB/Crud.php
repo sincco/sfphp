@@ -65,8 +65,8 @@ class Crud extends \stdClass {
 		return $this;
 	}
 
-	public function where( $fields, $values, $table = 'maintable', $logical = ' = ', $condition = ' AND ' ) {
-		array_push( $this->where, serialize( array( $fields, $values, $table, $logical, $condition ) ) );
+	public function where( $fields, $values, $logical = ' = ', $table = 'maintable', $condition = ' AND ' ) {
+		array_push( $this->where, serialize( array( $fields, $values, $table, ' ' . $logical . ' ', $condition ) ) );
 		array_push( $this->params, array( 'where' . $fields=>$values ) );
 		return $this;
 	}
@@ -145,7 +145,6 @@ class Crud extends \stdClass {
 		if( strlen( trim( $orders ) ) )
 			$query .= ' ORDER BY ' . $orders;
 		$this->query = $query;
-
 		return $query;
 	}
 
