@@ -43,6 +43,13 @@ final class Request extends \stdClass {
 		else
 			$this->data['previous'] = NULL;
 
+		//Soporte para Autorización
+		$headers = apache_request_headers();
+		if(isset($headers['Authorization'])){
+			$matches = [];
+			$this->data['authorization'] = $headers['Authorization'];
+		} 
+
 		if(!isset($_GET['url']))
 			$_GET['url'] = FALSE;
 		$_url = explode('/', $_GET['url']);
