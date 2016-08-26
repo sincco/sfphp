@@ -46,9 +46,11 @@ final class Request extends \stdClass {
 		//Soporte para Autorización
 		$headers = apache_request_headers();
 		if(isset($headers['Authorization'])){
-			$matches = [];
 			$this->data['authorization'] = $headers['Authorization'];
-		} 
+		}
+		if(isset($headers['x-access-token'])){
+			$this->data['authorization'] = $headers['x-access-token'];
+		}
 
 		if(!isset($_GET['url']))
 			$_GET['url'] = FALSE;
