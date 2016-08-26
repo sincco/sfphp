@@ -9,7 +9,7 @@
 # @author: Iván Miranda
 # @version: 1.0.0
 # -----------------------
-# Carga de configuración de la APP
+# Escribe de configuración de la APP
 # -----------------------
 
 namespace Sincco\Sfphp\Config;
