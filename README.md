@@ -1,4 +1,5 @@
-# Sfphp
+![saltamontes](https://github.com/sincco/sfphp/blob/master/saltamontes.png)
+# Saltamontes (sfphp)
 #### Simple Framework (for) PHP
 
 Simplificando al máximo las características de todo framework para PHP, este permite ser un punto de entrada
