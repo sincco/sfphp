@@ -1,4 +1,4 @@
-![saltamontes](https://github.com/sincco/sfphp/blob/master/saltamontes.png)
+![saltamontes](https://github.com/sincco/sfphp/blob/master/saltamontes_min.png)
 # Saltamontes (sfphp)
 #### Simple Framework (for) PHP
 
