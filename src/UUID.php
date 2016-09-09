@@ -9,7 +9,7 @@
 # @author: Iván Miranda
 # @version: 1.0.0
 # -----------------------
-# Ejecución de eventos según la petición realizada desde el navegador
+# Create a new UUID value
 # -----------------------
 
 namespace Sincco\Sfphp;
@@ -17,11 +17,6 @@ namespace Sincco\Sfphp;
 final class UUID extends \stdClass {
 	/**
 	 * Generate v3 UUID
-	 *
-	 * Version 3 UUIDs are named based. They require a namespace (another 
-	 * valid UUID) and a value (the name). Given the same namespace and 
-	 * name, the output is always the same.
-	 * 
 	 * @param	uuid	$namespace
 	 * @param	string	$name
 	 */
@@ -81,10 +76,6 @@ final class UUID extends \stdClass {
 	}
 	/**
 	 * Generate v5 UUID
-	 * 
-	 * Version 5 UUIDs are named based. They require a namespace (another 
-	 * valid UUID) and a value (the name). Given the same namespace and 
-	 * name, the output is always the same.
 	 * 
 	 * @param	uuid	$namespace
 	 * @param	string	$name

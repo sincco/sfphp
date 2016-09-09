@@ -138,7 +138,6 @@ final class Request extends \stdClass {
 		}
 	#POST
 		$_contenido = file_get_contents("php://input");
-		
 		switch($this->data['content_type']) {
 			case "application/json":
 			case "application/json;":
@@ -204,5 +203,6 @@ final class Request extends \stdClass {
 		}
 		return $valor;
 	}
+
 }
 

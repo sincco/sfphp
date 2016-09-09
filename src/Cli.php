@@ -9,7 +9,7 @@
 # @author: Iván Miranda
 # @version: 1.0.0
 # -----------------------
-# Ejecución de eventos según la petición realizada desde el navegador
+# Ejecución de eventos según la petición realizada desde la línea de comandos
 # -----------------------
 
 namespace Sincco\Sfphp;
