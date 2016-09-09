@@ -44,12 +44,14 @@ final class Request extends \stdClass {
 			$this->data['previous'] = NULL;
 
 		//Soporte para Autorización
-		$headers = apache_request_headers();
-		if(isset($headers['Authorization'])){
-			$this->data['authorization'] = $headers['Authorization'];
-		}
-		if(isset($headers['x-access-token'])){
-			$this->data['authorization'] = $headers['x-access-token'];
+		if ($_SERVER['REQUEST_METHOD'] != 'cli') {
+			$headers = apache_request_headers();
+			if(isset($headers['Authorization'])){
+				$this->data['authorization'] = $headers['Authorization'];
+			}
+			if(isset($headers['x-access-token'])){
+				$this->data['authorization'] = $headers['x-access-token'];
+			}
 		}
 
 		if(!isset($_GET['url']))
