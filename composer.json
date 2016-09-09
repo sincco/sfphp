@@ -44,7 +44,7 @@
             "var/cache",
             "var/session",
             "var/log",
-            "etc/config",
+            "etc/config"
         ]
     }
 }
