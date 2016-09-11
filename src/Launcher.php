@@ -47,12 +47,22 @@ final class Launcher extends \stdClass {
 	}
 
 	private function _loadClass($path, $class) {
-		$_path = str_replace("\\", "/", $path);
-		if(file_exists(PATH_ROOT."/app".$_path.".php")) {
-			require_once(PATH_ROOT."/app".$_path.".php");
-			return new $class();
-		} else {
-			return new \stdClass();
+		try{
+			$_path = str_replace("\\", "/", $path);
+			if(file_exists(PATH_ROOT."/app".$_path.".php")) {
+				require_once(PATH_ROOT."/app".$_path.".php");
+				return new $class();
+			} else {
+				return new \stdClass();
+			}
+		} catch(\Error $err) {
+			$errorInfo = sprintf( '%s: %s in %s on line %s.',
+                'Error',
+                $err,
+                $err->getFile(),
+                $err->getLine()
+            );
+            Debug::dump($errorInfo);
 		}
 	}
 }
