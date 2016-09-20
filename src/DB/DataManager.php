@@ -159,4 +159,15 @@ class DataManager extends Connector {
         $this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
         return $result;
     }
+    
+    public function direct($query, $params = null) {
+        try {
+            $this->Init($query, $params);
+            $result = $this->sQuery->fetchColumn();
+            $this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
+            return $result;
+        } catch (\PDOException $err) {
+            echo "Duplicado";
+        }
+    }
 }
