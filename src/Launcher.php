@@ -16,11 +16,14 @@ namespace Sincco\Sfphp;
 
 use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Request;
+use Sincco\Sfphp\Translations;
 use Sincco\Tools\Debug;
 
 final class Launcher extends \stdClass {
 	public function __construct() {
+		Translations::init();
 		$_config = Reader::get('app');
+
 		if(isset($_config['timezone']))
 			date_default_timezone_set($_config['timezone']);
 
