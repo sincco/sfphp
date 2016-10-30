@@ -45,7 +45,12 @@ final class Request extends \stdClass {
 
 		//Soporte para Autorización
 		if ($_SERVER['REQUEST_METHOD'] != 'cli') {
-			$headers = apache_request_headers();
+			if (function_exists('apache_request_headers')) {
+				$headers = apache_request_headers();
+			}
+			if (function_exists('getallheaders')) {
+				$headers = getallheaders();
+			}
 			if(isset($headers['Authorization'])){
 				$this->data['authorization'] = $headers['Authorization'];
 			}
