@@ -60,7 +60,7 @@ final class Request extends \stdClass {
 		}
 
 		if(!isset($_GET['url']))
-			$_GET['url'] = FALSE;
+			$_GET['url'] = false;
 		$_url = explode('/', $_GET['url']);
 		
 		if(!strstr($_SERVER['SERVER_SOFTWARE'], 'Apache'))
@@ -87,8 +87,49 @@ final class Request extends \stdClass {
 		}
 	}
 
+	public static function setRedirect($url) {
+		self::$_instance->data = array();
+		self::$_instance->params = array();
+
+		$_segments = array('module', 'controller', 'action');
+
+		self::$_instance->data['method'] = strtoupper(trim($_SERVER['REQUEST_METHOD']));
+
+		self::$_instance->data['content_type'] = 'html';
+		if(isset($_SERVER['CONTENT_TYPE'])) {
+			self::$_instance->data['content_type'] = $_SERVER['CONTENT_TYPE'];
+		}
+
+		if(isset($_SERVER['HTTP_REFERER']))
+			self::$_instance->data['previous'] = $_SERVER['HTTP_REFERER'];
+		else
+			self::$_instance->data['previous'] = NULL;
+
+		if(!isset($url))
+			$url = false;
+		$_url = explode('/', $url);
+		
+		if(!strstr($_SERVER['SERVER_SOFTWARE'], 'Apache'))
+			array_shift($_url);
+
+		$_segmentsTemp = $_segments;
+		$_urlTemp = $_url;
+		if(array_shift($_segmentsTemp) == "module" && !is_dir(PATH_ROOT . "/app/" . ucwords(array_shift($_urlTemp))))
+			array_shift($_segments);
+
+		while (count($_segments) > 0) {
+			self::$_instance->data['segments'][array_shift($_segments)] = ucwords(array_shift($_url));
+		}
+
+		if(!isset(self::$_instance->data['segments']['module']))
+			self::$_instance->data['segments']['module'] = '';
+
+		# self::$_instance->params = self::procesaParametros($_url);
+		# self::$_instance->data["params"] = self::$_instance->params;
+	}
+
 	public static function redirect( $url ) {
-		header( 'Location: ' . BASE_URL . $url );
+		header('Location: ' . BASE_URL . $url);
 	}
 
 	private function clearCache($dir) {
@@ -104,6 +145,16 @@ final class Request extends \stdClass {
 	}
 
 # Regresa la peticion
+	public static function getInstance($segment = '') {
+		if(!self::$_instance instanceof self)
+			self::$_instance = new self();
+		if(strlen(trim($segment)))
+			return self::$_instance;
+		else
+			return self::$_instance;
+	}
+
+# Regresa los elementos de la petición
 	public static function get($segment = '') {
 		if(!self::$_instance instanceof self)
 			self::$_instance = new self();

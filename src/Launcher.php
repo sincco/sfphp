@@ -18,20 +18,25 @@ use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Request;
 use Sincco\Sfphp\Translations;
 use Sincco\Tools\Debug;
+use Sincco\Sfphp\Plugger;
+use Sincco\Sfphp\ClassLoader;
 
 final class Launcher extends \stdClass {
 	public function __construct() {
-		Translations::init();
+		//Translations::init();
 		$_config = Reader::get('app');
 
 		if(isset($_config['timezone']))
 			date_default_timezone_set($_config['timezone']);
 
-		Debug::path( PATH_LOGS );
-		Debug::reporting( DEV_SHOWERRORS );
+		Debug::path(PATH_LOGS);
+		Debug::reporting(DEV_SHOWERRORS);
 
+		Plugger::dispatchGlobal('pre', 'ResolveUrl');
+		
 		$path = "";
 		$segments = Request::get('segments');
+
 
 		if(trim($segments['controller']) == "")
 			$segments['controller'] = "Index";
@@ -40,32 +45,24 @@ final class Launcher extends \stdClass {
 		if(trim($segments['module']) != "")
 			$path .= "\\{$segments['module']}";
 		$path .= "\\Controllers\\{$segments['controller']}";
-		$objClass = $this->_loadClass($path, $segments['controller']."Controller");
+		if (trim($segments['module']) != '') {
+			$observer = $segments['module'] . '_' . $segments['controller'] . '_' . $segments['action'];
+		} else {
+			$observer = $segments['controller'] . '_' . $segments['action'];
+		}
+
+		$objClass = ClassLoader::load($path, $segments['controller']."Controller");
 		if(is_callable(array($objClass, $segments['action']))) {
+			Plugger::dispatchAction('pre', $observer);
 			call_user_func(array($objClass, $segments['action']));
+			Plugger::dispatchAction('post', $observer);
 		}
 		else {
-			Debug::dump( "ERROR :: No es posible lanzar " . implode("->", $segments) );
-		}
-	}
-
-	private function _loadClass($path, $class) {
-		try{
-			$_path = str_replace("\\", "/", $path);
-			if(file_exists(PATH_ROOT."/app".$_path.".php")) {
-				require_once(PATH_ROOT."/app".$_path.".php");
-				return new $class();
+			if (DEV_SHOWERRORS) {
+				Debug::dump("ERROR :: No es posible lanzar " . implode("->", $segments));
 			} else {
-				return new \stdClass();
+				echo "404";
 			}
-		} catch(\Error $err) {
-			$errorInfo = sprintf( '%s: %s in %s on line %s.',
-                'Error',
-                $err,
-                $err->getFile(),
-                $err->getLine()
-            );
-            Debug::dump($errorInfo);
 		}
 	}
 }
