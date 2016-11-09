@@ -61,11 +61,14 @@ final class Reader extends \stdClass {
 	private static function defineConstants($array) {
 		if(!isset($array["front"]["url"]))
 			$array["front"]["url"] = self::url();
-		if(!defined("BASE_URL"))
+		if(!defined("BASE_URL") && isset($array['front'])) {
 			define("BASE_URL",$array["front"]["url"]);
-		foreach ($array["app"] as $key => $value) {
-			if(!defined(strtoupper("app_".$key)))
-				define(strtoupper("app_".$key),$value);
+		}
+		if(isset($array["app"])) {
+			foreach ($array["app"] as $key => $value) {
+				if(!defined(strtoupper("app_".$key)))
+					define(strtoupper("app_".$key),$value);
+			}
 		}
 		if(isset($array["dev"])) {
 			foreach ($array["dev"] as $key => $value) {
@@ -75,9 +78,11 @@ final class Reader extends \stdClass {
 				}
 			}
 		}
-		foreach ($array["sesion"] as $key => $value) {
-			if(!defined(strtoupper("session_".$key)))
-				define(strtoupper("session_".$key),$value);
+		if (isset($array['sesion'])) {
+			foreach ($array["sesion"] as $key => $value) {
+				if(!defined(strtoupper("session_".$key)))
+					define(strtoupper("session_".$key),$value);
+			}
 		}
 	}
 

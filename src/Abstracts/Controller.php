@@ -14,38 +14,55 @@
 
 namespace Sincco\Sfphp\Abstracts;
 
+use Sincco\Tools\Debug;
 use Sincco\Sfphp\Request;
+use Sincco\Sfphp\Response;
 use Sincco\Tools\Singleton;
 
-abstract class Controller {
+abstract class Controller
+{
 
 	private $helpers;
 
-	public function getModel( $model ) {
-		$path = explode( '\\', $model );
-		array_push( $path, $path[( count( $path ) - 1 )] );
-		$path[count( $path ) - 2] = 'Models';
-		include_once( PATH_ROOT . '/app/' . implode( '/', $path ) . '.php' );
-		$class = $path[count( $path ) - 1]."Model";
-		return Singleton::get( $class );
+	public function getModel($model)
+	{
+		$path = explode('\\', $model);
+		array_push($path, $path[(count($path) - 1)]);
+		$path[count($path) - 2] = 'Models';
+		include_once(PATH_ROOT . '/app/' . implode('/', $path) . '.php');
+		$class = $path[count($path) - 1]."Model";
+		return Singleton::get($class);
 	}
 
-	public function newView( $view ) {
-		return Singleton::get( 'Sincco\Sfphp\Abstracts\View', $view, $view );
+	public function newView($view)
+	{
+		return Singleton::get('Sincco\Sfphp\Abstracts\View', $view, $view);
 	}
 
-	public function helper( $helper ) {
-		include_once( PATH_ROOT . '/app/Helpers/' . $helper . '.php' );
+	public function helper($helper)
+	{
+		include_once(PATH_ROOT . '/app/Helpers/' . $helper . '.php');
 		$class = $helper . "Helper";
-		return Singleton::get( $class );
+		return Singleton::get($class);
 	}
 
-	public function getParams( $param = '' ) {
-		return Request::getParams( $param );
+	public function getParams($param = '')
+	{
+		return Request::getParams($param);
 	}
 
-	public function getRequest() {
+	public function getRequest()
+	{
 		return Request::get();
 	}
 
+	public function response($type, $data)
+	{
+		new Response($type, $data);
+	}
+
+	public function log($data)
+	{
+		Debug::log($data);
+	}
 }

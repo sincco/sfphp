@@ -23,6 +23,12 @@ final class Session extends \stdClass {
 
     protected function __construct() {
             $config = Reader::get();
+            if (!isset($config['sesion'])) {
+                $config['sesion']['type'] = 'DEFAULT';
+                $config['sesion']['name'] = 'sfphp';
+                $config['sesion']['ssl'] = 0;
+                $config['sesion']['inactivity'] = 300;
+            }
             $config = $config['sesion'];
             $httponly = true;
             $session_hash = 'sha512';
@@ -32,32 +38,32 @@ final class Session extends \stdClass {
             ini_set('session.use_only_cookies', 1);
             ini_set('session.gc_maxlifetime', $config['inactivity']);
             $cookieParams = session_get_cookie_params();
-            if($cookieParams["lifetime"] == 0)
+            if ($cookieParams["lifetime"] == 0)
                 $cookieParams["lifetime"] = 28800; #Se mantiene una sesion activa hasta por 8 horas en el navegador
             session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $config['ssl'], true); 
             session_save_path(PATH_SESSION);
             session_name($config['name']);
             session_start();
             $_cookie = ( isset( $_SERVER['HTTP_COOKIE'] ) ) ? $_SERVER['HTTP_COOKIE'] : "" ;
-            if(trim($_cookie) == "")
+            if (trim($_cookie) == "")
                 $_cookie = $config['name'] . "=" . session_id();
             self::set('sincco\sfphp\client\browser', $_SERVER['HTTP_USER_AGENT']);
             self::set('sincco\sfphp\client\address', $_SERVER['REMOTE_ADDR']);
-            if(is_null(self::get('sincco\sfphp\client\token')))
+            if (is_null(self::get('sincco\sfphp\client\token'))) {
                 self::set('sincco\sfphp\client\uid', md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].$_cookie));
-            else {
-                #if(self::get('sincco\sfphp\client\uid') != md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].$_cookie))
+            } else {
+                #if (self::get('sincco\sfphp\client\uid') != md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].$_cookie))
                 #    throw new \Sincco\Sfphp\Exception('Violacion de seguridad', 403);
             }
-            if(is_null(self::get('sincco\sfphp\client\token')))
+            if (is_null(self::get('sincco\sfphp\client\token')))
                 self::set('sincco\sfphp\client\token', md5(\Sincco\Sfphp\UUID::v4()));
     }
 
     public static function get($section = '') {
-        if(trim(session_id()) == "")
+        if (trim(session_id()) == "")
             self::$instance = new self();
-        if(strlen(trim($section))) {
-            if(isset($_SESSION[$section]))
+        if (strlen(trim($section))) {
+            if (isset($_SESSION[$section]))
                 return trim(Crypt::decrypt($_SESSION[$section]));
             else
                 return NULL;
@@ -67,7 +73,7 @@ final class Session extends \stdClass {
     }
 
     public function set($section, $valor) {
-        if(trim(session_id()) == "")
+        if (trim(session_id()) == "")
             self::$instance = new self();
         $_SESSION[$section] = Crypt::encrypt($valor);
     }

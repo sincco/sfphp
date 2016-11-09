@@ -24,8 +24,6 @@ final class Plugger extends \stdClass {
 		$objClass = ClassLoader::load('\\Observers\\Global', 'GlobalObserver');
 		if(is_callable(array($objClass, $function . '_' . $event))) {
 			call_user_func(array($objClass, $function . '_' . $event));
-		} else {
-			echo "No hay observer para " . $function . '_' . $event;
 		}
 	}
 

@@ -16,7 +16,7 @@ namespace Sincco\Sfphp;
 
 final class Response extends \stdClass {
 
-	public function __construct( $type, $data ) {
+	public function __construct($type, $data) {
 		switch ( strtolower( $type ) ) {
 			case 'json':
 				if( gettype( $data ) == "array" )
@@ -24,10 +24,13 @@ final class Response extends \stdClass {
 				$header = 'Content-Type: application/json';
 				$data = json_encode( $data );
 				break;
+			case 'htmlstatuscode':
+				$header = "HTTP/1.0 " . $data;
+				break;
 			default:
 				break;
 		}
-		header( $header );
+		header($header);
 		echo $data;
 	}
 

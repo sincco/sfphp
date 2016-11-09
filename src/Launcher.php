@@ -16,6 +16,7 @@ namespace Sincco\Sfphp;
 
 use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Request;
+use Sincco\Sfphp\Response;
 use Sincco\Sfphp\Translations;
 use Sincco\Tools\Debug;
 use Sincco\Sfphp\Plugger;
@@ -23,7 +24,6 @@ use Sincco\Sfphp\ClassLoader;
 
 final class Launcher extends \stdClass {
 	public function __construct() {
-		//Translations::init();
 		$_config = Reader::get('app');
 
 		if(isset($_config['timezone']))
@@ -61,7 +61,7 @@ final class Launcher extends \stdClass {
 			if (DEV_SHOWERRORS) {
 				Debug::dump("ERROR :: No es posible lanzar " . implode("->", $segments));
 			} else {
-				echo "404";
+				new Response('htmlstatuscode', '404 Not Found');
 			}
 		}
 	}
