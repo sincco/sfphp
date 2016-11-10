@@ -16,35 +16,12 @@
         "sincco/debug": "~1.0",
         "desarrolla2/cache":  "~2.0",
         "twig/twig": "~1.0",
-        "fbourigault/composer-mkdir": "^2.0"
+        "fbourigault/composer-mkdir": "^2.0",
+        "sincco/sfphp-bootstrap": "dev-master"
     },
     "autoload": {
         "psr-4": {
             "Sincco\\Sfphp\\": "src"
         }
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "Fbourigault\\ComposerMkdir\\ScriptHandler::mkdirs"
-        ],
-        "post-update-cmd": [
-            "Fbourigault\\ComposerMkdir\\ScriptHandler::mkdirs"
-        ]
-    },
-    "extra": {
-        "fbourigault-composer-mkdir": [
-            "app/Module",
-            "app/Module/Controllers",
-            "app/Module/Models",
-            "app/Module/Views",
-            "app/Controllers",
-            "app/Models",
-            "app/Views",
-            "app/Helpers",
-            "var/cache",
-            "var/session",
-            "var/log",
-            "etc/config"
-        ]
     }
 }
