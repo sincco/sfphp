@@ -15,9 +15,7 @@
         "sincco/singleton": "~1.0",
         "sincco/debug": "~1.0",
         "desarrolla2/cache":  "~2.0",
-        "twig/twig": "~1.0",
-        "fbourigault/composer-mkdir": "^2.0",
-        "sincco/sfphp-bootstrap": "dev-master"
+        "twig/twig": "~1.0"
     },
     "autoload": {
         "psr-4": {
