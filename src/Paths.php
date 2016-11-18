@@ -21,6 +21,7 @@ final class Paths extends \stdClass {
 		define('PATH_CONFIG', PATH_ROOT . '/etc/config');
 		define('PATH_SESSION', PATH_ROOT . '/var/session');
 		define('PATH_TMP', PATH_ROOT . '/var/tmp');
+		define('PATH_LOCALE', PATH_ROOT . '/etc/locale');
 		if (file_exists(__DIR__ . '/paths.php')) {
 			require_once __DIR__ . '/paths.php';
 		}
