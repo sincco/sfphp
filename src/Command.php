@@ -24,27 +24,9 @@ final class Command extends \stdClass {
 	public function run($argv) {
 		Paths::init();
 		Reader::get('app');
-		if (!defined('DEV_SHOWERRORS')) {
-			define('DEV_SHOWERRORS', false);
-		}
-		if (!defined('APP_KEY')) {
-			define('APP_KEY', 'e77393ef-c24b-4ff5-81f7-ed9fa28b4fb8');
-		}
-		if (!defined('APP_NAME')) {
-			define('APP_NAME', 'sfphp');
-		}
+
 		array_shift($argv);
 		$arguments = $argv;
-
-		if (!defined('DEV_SHOWERRORS')) {
-			define('DEV_SHOWERRORS', false);
-		}
-		if (!defined('APP_KEY')) {
-			define('APP_KEY', 'e77393ef-c24b-4ff5-81f7-ed9fa28b4fb8');
-		}
-		if (!defined('APP_NAME')) {
-			define('APP_NAME', 'sfphp');
-		}
 
 		// It's a petition for an URL registered on system
 		if(count($arguments) == 1 AND strtolower(trim($arguments[0])) != 'help'){
