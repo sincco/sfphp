@@ -14,6 +14,9 @@
 
 namespace Sincco\Sfphp\Config;
 
+use Desarrolla2\Cache\Cache;
+use Desarrolla2\Cache\Adapter\File;
+
 final class Writer extends \stdClass {
 	private static $instance;
 
@@ -22,6 +25,10 @@ final class Writer extends \stdClass {
 			self::$instance = new self();
 		$_xml = new \SimpleXMLElement("<?xml version=\"1.0\"?><".$root."></".$root.">");
 		self::array_to_xml($arreglo,$_xml);
+		$adapter = new File(PATH_CACHE);
+		$adapter->setOption('ttl', 86400);
+		$cache = new Cache($adapter);
+		$cache->set('config', $arreglo, 86400);
 		return $_xml->asXML($archivo);
 	}
 

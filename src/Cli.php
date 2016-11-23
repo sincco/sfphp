@@ -24,8 +24,9 @@ final class Cli extends \stdClass {
 
 	private static $_instance;
 
-	public function __construct( $url ) {
+	public function __construct($url) {
 		$_GET[ 'url' ] = $url;
+
 		$_SERVER['SERVER_SOFTWARE'] = '';
 		$_SERVER['REQUEST_METHOD'] = 'cli';
 
@@ -36,9 +37,9 @@ final class Cli extends \stdClass {
 		if(isset($_config['timezone']))
 			date_default_timezone_set($_config['timezone']);
 
-		Debug::path( PATH_LOGS );
-		Debug::reporting( DEV_SHOWERRORS );
-		Debug::cli( 1 );
+		Debug::path(PATH_LOGS);
+		Debug::reporting(DEV_SHOWERRORS);
+		Debug::cli(1);
 
 		$path = "";
 
@@ -51,11 +52,11 @@ final class Cli extends \stdClass {
 		$path .= "\\Controllers\\{$segments['controller']}";
 		$objClass = $this->_loadClass($path, $segments['controller']."Controller");
 		if(is_callable(array($objClass, $segments['action']))) {
-			if( strtolower( $segments['action'] ) != 'index')
+			if(strtolower($segments['action']) != 'index')
 				call_user_func(array($objClass, $segments['action']));
 		}
 		else {
-			Debug::dump( "ERROR :: No es posible lanzar " . implode("->", $segments) );
+			Debug::dump("ERROR :: No es posible lanzar " . implode("->", $segments));
 		}
 	}
 

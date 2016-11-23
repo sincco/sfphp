@@ -94,11 +94,13 @@ final class Reader extends \stdClass {
 	}
 
 	private function url() {
-		return sprintf(
-			"%s://%s%s",
-			isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-			$_SERVER['SERVER_NAME'],
-			$_SERVER['REQUEST_URI']
-		);
+		if (isset($_SERVER['SERVER_NAME'])) {
+			return sprintf(
+				"%s://%s%s",
+				isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+				$_SERVER['SERVER_NAME'],
+				$_SERVER['REQUEST_URI']
+			);
+		}
 	}
 }

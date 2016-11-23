@@ -92,7 +92,7 @@ final class Command extends \stdClass {
 	 * @param  string $url
 	 * @return none
 	 */
-	public function app_init($cia, $url, $force = '') {
+	public function app_init($app, $cia, $url, $force = '') {
 		$_SERVER['SERVER_NAME'] = NULL;
 		$_SERVER['REQUEST_URI'] = NULL;
 		$config = Reader::get();
@@ -108,7 +108,7 @@ final class Command extends \stdClass {
 		$_config = [
 			'app' => [
 				'key' => $_llave_encripcion,
-				'name' => 'aguas',
+				'name' => $app,
 				'company' => $cia,
 				'timezone' => 'America/Chicago',
 			],
@@ -118,7 +118,7 @@ final class Command extends \stdClass {
 			'bases' => $bases,
 			'sesion' => [
 				'type' => 'DEFAULT',
-				'name' => 'aguas',
+				'name' => str_replace(' ', '', strtolower($app)),
 				'ssl' => 0,
 				'inactivity' => 300,
 			],
@@ -126,9 +126,11 @@ final class Command extends \stdClass {
 				'showerrors' => 1,
 			],
 		];
+		if(!defined('APP_KEY')) {
+			define('APP_KEY', $_llave_encripcion);
+		}
 		Writer::write($_config, 'config', 'etc/config/config.xml');
 		chmod("./etc/config/config.xml", 0775);
-		$this->cache_clean();
 		echo 'Archivo de configuración inicializado' . PHP_EOL;
 	}
 
@@ -152,7 +154,6 @@ final class Command extends \stdClass {
 		$config['bases'][$id]['password'] = Crypt::encrypt($password);
 		Writer::write($config, 'config', 'etc/config/config.xml');
 		chmod("./etc/config/config.xml", 0775);
-		$this->cache_clean();
 		echo 'OK' . PHP_EOL;
 	}
 
@@ -164,7 +165,6 @@ final class Command extends \stdClass {
 		echo 'Aplicando actualizaciones...' . PHP_EOL;
 		exec('git pull origin master');
 		exec('composer update');
-		$this->cache_clean();
 		echo 'Terminado' . PHP_EOL;
 	}
 
@@ -259,7 +259,6 @@ final class Command extends \stdClass {
 				$query = '';
 			}
 		}
-		$this->cache_clean();
 		echo 'Terminado' . PHP_EOL;
 	}
 
@@ -319,7 +318,6 @@ final class Command extends \stdClass {
 		$config['dev']['cache'] = 0;
 		Writer::write($config, 'config', 'etc/config/config.xml');
 		chmod("./etc/config/config.xml", 0775);
-		$this->cache_clean();
 		echo 'OK' . PHP_EOL;
 	}
 
@@ -329,7 +327,6 @@ final class Command extends \stdClass {
 		$config['dev']['cache'] = 1;
 		Writer::write($config, 'config', 'etc/config/config.xml');
 		chmod("./etc/config/config.xml", 0775);
-		$this->cache_clean();
 		echo 'OK' . PHP_EOL;
 	}
 
@@ -361,7 +358,6 @@ final class Command extends \stdClass {
 		$config['elasticemail']['test'] = $test;
 		Writer::write($config, 'config', 'etc/config/config.xml');
 		chmod("./etc/config/config.xml", 0775);
-		$this->cache_clean();
 		echo 'OK' . PHP_EOL;
 	}
 
