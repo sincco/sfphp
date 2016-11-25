@@ -2,6 +2,8 @@
 # Saltamontes (sfphp)
 #### Simple Framework (for) PHP
 
+[![Latest version][ico-version]][link-packagist]
+
 Simplificando al máximo las características de todo framework para PHP, este permite ser un punto de entrada
 para quienes aún no están utilizando alguno, o desean entender cada elemento que lo componen.
 
