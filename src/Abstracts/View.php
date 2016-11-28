@@ -93,7 +93,7 @@ final class View extends \stdClass {
 			return $token;
 		}
 		if ($type == 'User') {
-			var_dump(Session::get());
+			//var_dump(Session::get());
 			return Session::get('sincco\login\token');
 		}
 	}
