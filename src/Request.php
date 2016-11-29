@@ -121,11 +121,9 @@ final class Request extends \stdClass {
 			self::$_instance->data['segments'][array_shift($_segments)] = ucwords(array_shift($_url));
 		}
 
-		if(!isset(self::$_instance->data['segments']['module']))
+		if(!isset(self::$_instance->data['segments']['module'])) {
 			self::$_instance->data['segments']['module'] = '';
-
-		# self::$_instance->params = self::procesaParametros($_url);
-		# self::$_instance->data["params"] = self::$_instance->params;
+		}
 	}
 
 	public static function redirect( $url ) {
@@ -186,6 +184,12 @@ final class Request extends \stdClass {
 	private function procesaParametros($segmentos) {
 		$params = array();
 	#GET
+		foreach ($_GET as $key => $value) {
+			if ($key != 'url') {
+				$params[$key] = self::cleanGET($value);
+			}
+		}
+	#FRAMEWORK
 		foreach ($segmentos as $key => $value) {
 			$segmentos[$key] = self::cleanGET($value);
 		}
