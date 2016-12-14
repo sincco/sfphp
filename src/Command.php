@@ -317,7 +317,7 @@ final class Command extends \stdClass {
 		include_once(PATH_ROOT . '/app/Models/Usuarios.php');
 		$class = 'UsersAccountHelper';
 		$helper = Singleton::get($class);
-		$mdlUsuarios = Singleton::get('UsuariosModel');
+		$mdlUsuarios = Singleton::get('Catalogo\UsuariosModel');
 		$data = array('user'=>$name,'email'=>$email,'password'=>$password);
 		$userId = $helper->createUser($data);
 		

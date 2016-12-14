@@ -97,4 +97,23 @@ final class View extends \stdClass {
 			return Session::get('sincco\login\token');
 		}
 	}
+
+	private function grid($data, $selection=false)
+	{
+		$_html = '<table data-toggle="table" data-search="true" data-show-export="true" data-page-size="20" data-pagination="true" data-show-pagination-switch="true" data-show-columns="true" data-mobile-responsive="true" data-sortable="true"><thead><tr>';
+		foreach (array_keys($data) as $col) {
+			$_html .= '<th data-sortable="true">' . $col . '</th>';
+		}
+		//<th data-checkbox="true"></th>
+		$_html .= '</tr></thead><tbody>';
+		foreach ($data as $row) {
+			$_html .= '<tr>';
+			foreach ($row as $value) {
+				$_html .= '<td>' . $value . '</td>';
+			}
+			$_html .= '</tr>';
+		}
+		$_html .= '</tr></tbody></table>';
+		return $_html;
+	}
 }
