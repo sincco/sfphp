@@ -314,10 +314,10 @@ final class Command extends \stdClass {
 
 	public function app_user($name, $email, $password) {
 		include_once(PATH_ROOT . '/app/Helpers/UsersAccount.php');
-		include_once(PATH_ROOT . '/app/Models/Usuarios.php');
+		include_once(PATH_ROOT . '/app/Catalogo/Models/Usuarios.php');
 		$class = 'UsersAccountHelper';
 		$helper = Singleton::get($class);
-		$mdlUsuarios = Singleton::get('Catalogo\UsuariosModel');
+		$mdlUsuarios = Singleton::get('UsuariosModel');
 		$data = array('user'=>$name,'email'=>$email,'password'=>$password);
 		$userId = $helper->createUser($data);
 		
