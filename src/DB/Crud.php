@@ -35,7 +35,7 @@ class Crud extends \stdClass {
 		$this->connector =  Singleton::get( 'Sincco\Sfphp\DB\DataManager', $data, $data[ 'dbname' ] );
 	}
 
-	function __call( $name, $args ) {
+	public function __call( $name, $args ) {
 		array_unshift( $args, $name );
 		return call_user_func_array( array( $this, 'table' ), $args );
 	}
@@ -47,6 +47,19 @@ class Crud extends \stdClass {
 		$this->fields 	= array();
 		$this->params = array();
 		$this->query 	= NULL;
+	}
+
+	public function insert($data) {
+		$campos = [];
+		$variables = [];
+		foreach ($data as $campo => $valor){
+			$campos[] = $campo;
+			$variables[] = ":" . $campo;
+		}
+		$campos		= implode(",", $campos);
+		$variables	= implode(",", $variables);
+		$query = 'INSERT INTO ' . $this->table . ' (' . $campos . ') VALUES (' . $variables . ')';
+		return $this->connector->query($query, $data);
 	}
 
 	public function table( $name ) {
@@ -147,81 +160,4 @@ class Crud extends \stdClass {
 		$this->query = $query;
 		return $query;
 	}
-
-	/*
-	public function save($id = "0") {
-		$this->fields[$this->pk] = (empty($this->fields[$this->pk])) ? $id : $this->fields[$this->pk];
-		$fieldsvals = '';
-		$columns = array_keys($this->fields);
-		foreach($columns as $column)
-		{
-			if($column !== $this->pk)
-			$fieldsvals .= $column . " = :". $column . ",";
-		}
-		$fieldsvals = substr_replace($fieldsvals , '', -1);
-		if(count($columns) > 1 ) {
-			$sql = "UPDATE " . $this->table .  " SET " . $fieldsvals . " WHERE " . $this->pk . "= :" . $this->pk;
-			if($id === "0" && $this->fields[$this->pk] === "0") { 
-				unset($this->fields[$this->pk]);
-				$sql = "UPDATE " . $this->table .  " SET " . $fieldsvals;
-			}
-			return $this->exec($sql);
-		}
-		return null;
-	}
-	public function create() { 
-		$bindings   	= $this->fields;
-		if(!empty($bindings)) {
-			$fields     =  array_keys($bindings);
-			$fieldsvals =  array(implode(",",$fields),":" . implode(",:",$fields));
-			$sql 		= "INSERT INTO ".$this->table." (".$fieldsvals[0].") VALUES (".$fieldsvals[1].")";
-		}
-		else {
-			$sql 		= "INSERT INTO ".$this->table." () VALUES ()";
-		}
-		return $this->exec($sql);
-	}
-	public function delete($id = "") {
-		$id = (empty($this->fields[$this->pk])) ? $id : $this->fields[$this->pk];
-		if(!empty($id)) {
-			$sql = "DELETE FROM " . $this->table . " WHERE " . $this->pk . "= :" . $this->pk. " LIMIT 1" ;
-		}
-		return $this->exec($sql, array($this->pk=>$id));
-	}
-	public function find($id = "") {
-		$id = (empty($this->fields[$this->pk])) ? $id : $this->fields[$this->pk];
-		if(!empty($id)) {
-			$sql = "SELECT * FROM " . $this->table ." WHERE " . $this->pk . "= :" . $this->pk . " LIMIT 1";	
-			
-			$result = $this->connector->row($sql, array($this->pk=>$id));
-			$this->fields = ($result != false) ? $result : null;
-		}
-	}
-
-	public function search($fields = array(), $sort = array()) {
-		$bindings = empty($fields) ? $this->fields : $fields;
-		$sql = "SELECT * FROM " . $this->table;
-		if (!empty($bindings)) {
-			$fieldsvals = array();
-			$columns = array_keys($bindings);
-			foreach($columns as $column) {
-				$fieldsvals [] = $column . " = :". $column;
-			}
-			$sql .= " WHERE " . implode(" AND ", $fieldsvals);
-		}
-		
-		if (!empty($sort)) {
-			$sortvals = array();
-			foreach ($sort as $key => $value) {
-				$sortvals[] = $key . " " . $value;
-			}
-			$sql .= " ORDER BY " . implode(", ", $sortvals);
-		}
-		return $this->exec($sql);
-	}
-	public function all(){
-		return $this->connector->query("SELECT * FROM " . $this->table);
-	}	
-	*/
-
 }

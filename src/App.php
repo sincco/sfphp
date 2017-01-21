@@ -13,6 +13,7 @@
 namespace Sincco\Sfphp;
 
 use Sincco\Sfphp\Paths;
+use Sincco\Sfphp\Messages;
 use Sincco\Sfphp\Session;
 use Sincco\Sfphp\Launcher;
 use Sincco\Tools\Debug;
@@ -25,6 +26,7 @@ final class App extends \stdClass
 	{
 		try {
 			Paths::init();
+			Messages::init();
 			Reader::get('app');
 			if (!defined('DEV_SHOWERRORS')) {
 				define('DEV_SHOWERRORS', false);
