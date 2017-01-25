@@ -22,7 +22,7 @@ final class Messages extends \stdClass
 		self::$messages = [];
 	}
 
-	static public function new($data, $class='message') {
+	static public function add($data, $class='message') {
 		self::$messages[] = ['message'=>$data, 'class'=>$class];
 	}
 
