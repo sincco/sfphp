@@ -18,7 +18,7 @@ final class Messages extends \stdClass
 {
 	static $messages;
 
-	public function init() {
+	static public function init() {
 		self::$messages = [];
 	}
 
