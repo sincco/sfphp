@@ -33,8 +33,10 @@ final class View extends \stdClass {
 		$this->file = array_pop($path) . '.html';
 		$loader = new \Twig_Loader_Filesystem(PATH_ROOT . '/app/' . implode('/', $path));
 		$params = [];
-		if (DEV_CACHE == 1) {
-			$params = array('cache' => PATH_CACHE);
+		if(defined(DEV_CACHE)){
+			if (DEV_CACHE == 1) {
+				$params = array('cache' => PATH_CACHE);
+			}
 		}
 		$this->template = new \Twig_Environment($loader, $params);
 		$this->_twigFunctions();
@@ -96,7 +98,6 @@ final class View extends \stdClass {
 			return $token;
 		}
 		if ($type == 'User') {
-			//var_dump(Session::get());
 			return Session::get('sincco\login\token');
 		}
 	}
@@ -107,7 +108,6 @@ final class View extends \stdClass {
 		foreach (array_keys($data) as $col) {
 			$_html .= '<th data-sortable="true">' . $col . '</th>';
 		}
-		//<th data-checkbox="true"></th>
 		$_html .= '</tr></thead><tbody>';
 		foreach ($data as $row) {
 			$_html .= '<tr>';
