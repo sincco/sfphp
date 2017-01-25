@@ -49,7 +49,7 @@ class Crud extends \stdClass {
 		$this->query 	= NULL;
 	}
 
-	public function insert($data) {
+	public function insert($data, $tabla=false) {
 		$campos = [];
 		$variables = [];
 		foreach ($data as $campo => $valor){
@@ -58,7 +58,11 @@ class Crud extends \stdClass {
 		}
 		$campos		= implode(",", $campos);
 		$variables	= implode(",", $variables);
-		$query = 'INSERT INTO ' . $this->table . ' (' . $campos . ') VALUES (' . $variables . ')';
+		if ($tabla) {
+			$query = 'INSERT INTO ' . $tabla . ' (' . $campos . ') VALUES (' . $variables . ')';
+		} else {
+			$query = 'INSERT INTO ' . $this->table . ' (' . $campos . ') VALUES (' . $variables . ')';
+		}
 		return $this->connector->query($query, $data);
 	}
 
