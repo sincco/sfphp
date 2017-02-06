@@ -32,7 +32,7 @@ final class Writer extends \stdClass {
 		return $_xml->asXML($archivo);
 	}
 
-	private function array_to_xml($array, &$_xml) {
+	private static function array_to_xml($array, &$_xml) {
 		foreach($array as $key => $value) {
 			if(is_array($value)) {
 				if(!is_numeric($key)){
