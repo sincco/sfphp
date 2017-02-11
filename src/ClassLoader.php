@@ -19,11 +19,12 @@ use Sincco\Tools\Debug;
 
 final class ClassLoader extends \stdClass {
 
-	public static function load($path, $class) {
+	public static function load($path, $class, $type = 'Controller') {
 		try{
-			$_path = str_replace("\\", "/", $path);
-			if(file_exists(PATH_ROOT."/app".$_path.".php")) {
-				require_once(PATH_ROOT."/app".$_path.".php");
+			$_path = implode('/', $path) . '/' . $type . 's/' . $class;
+			if(file_exists(PATH_ROOT.'/app/'.$_path.'.php')) {
+				require_once(PATH_ROOT.'/app/'.$_path.'.php');
+				$class .= $type;
 				return new $class();
 			} else {
 				return new \stdClass();

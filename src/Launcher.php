@@ -33,32 +33,20 @@ final class Launcher extends \stdClass {
 		Debug::reporting(DEV_SHOWERRORS);
 
 		Plugger::dispatchGlobal('pre', 'ResolveUrl');
-		
-		$path = "";
-		$segments = Request::get('segments');
 
+		$observer = implode('_', Request::get('path')) . '_' . Request::get('controller') . '_' . Request::get('action');
 
-		if(trim($segments['controller']) == "")
-			$segments['controller'] = "Index";
-		if(trim($segments['action']) == "")
-			$segments['action'] = "index";
-		if(trim($segments['module']) != "")
-			$path .= "\\{$segments['module']}";
-		$path .= "\\Controllers\\{$segments['controller']}";
-		if (trim($segments['module']) != '') {
-			$observer = $segments['module'] . '_' . $segments['controller'] . '_' . $segments['action'];
-		} else {
-			$observer = $segments['controller'] . '_' . $segments['action'];
-		}
-
-		$objClass = ClassLoader::load($path, $segments['controller']."Controller");
-		if(is_callable(array($objClass, $segments['action']))) {
+		$objClass = ClassLoader::load(Request::get('path'), Request::get('controller'));
+		if(is_callable(array($objClass, Request::get('action')))) {
 			Plugger::dispatchAction('pre', $observer);
-			call_user_func(array($objClass, $segments['action']));
+			call_user_func(array($objClass, Request::get('action')));
 			Plugger::dispatchAction('post', $observer);
 		}
 		else {
 			if (DEV_SHOWERRORS) {
+				$segments = Request::get('path');
+				$segments[] = Request::get('controller');
+				$segments[] = Request::get('action');
 				Debug::dump("ERROR :: No es posible lanzar " . implode("->", $segments));
 			} else {
 				new Response('htmlstatuscode', '404 Not Found');

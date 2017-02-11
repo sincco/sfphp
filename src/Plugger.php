@@ -21,14 +21,14 @@ use Sincco\Tools\Debug;
 final class Plugger extends \stdClass {
 
 	public static function dispatchGlobal($event, $function) {
-		$objClass = ClassLoader::load('\\Observers\\Global', 'GlobalObserver');
+		$objClass = ClassLoader::load(['Observers', 'Global'], 'Global' , 'Observer');
 		if(is_callable(array($objClass, $function . '_' . $event))) {
 			call_user_func(array($objClass, $function . '_' . $event));
 		}
 	}
 
 	public static function dispatchAction($event, $function) {
-		$objClass = ClassLoader::load('\\Observers\\Actions', 'ActionsObserver');
+		$objClass = ClassLoader::load(['Observers', 'Actions'], 'Actions', 'Observer');
 		if(is_callable(array($objClass, $function . '_' . $event))) {
 			call_user_func(array($objClass, $function . '_' . $event));
 		}

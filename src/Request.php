@@ -29,8 +29,6 @@ final class Request extends \stdClass {
 		$this->data = array();
 		$this->params = array();
 
-		$_segments = array('module', 'controller', 'action');
-
 		$this->data['method'] = strtoupper(trim($_SERVER['REQUEST_METHOD']));
 
 		$this->data['content_type'] = 'html';
@@ -66,18 +64,33 @@ final class Request extends \stdClass {
 		if(!strstr($_SERVER['SERVER_SOFTWARE'], 'Apache'))
 			array_shift($_url);
 
-		$_segmentsTemp = $_segments;
-		$_urlTemp = $_url;
-		if(array_shift($_segmentsTemp) == "module" && !is_dir(PATH_ROOT . "/app/" . ucwords(array_shift($_urlTemp))))
-			array_shift($_segments);
+		$_dirs = [];
+		$intDirs = 0;
+		foreach ($_url as $dir) {
+			$_path = implode('/', $_dirs) . '/';
+			if (is_dir(PATH_ROOT . "/app/" . $_path . ucwords($dir))) {
+				$_dirs[] = ucwords($dir);
+				$intDirs++;
+			}
+		}
+		$_url = array_slice($_url, $intDirs);
 
-		while (count($_segments) > 0) {
-			$this->data['segments'][array_shift($_segments)] = ucwords(array_shift($_url));
+		if (isset($_url[0])) {
+			$_segments['controller'] = ucwords($_url[0]);
+		} else {
+			$_segments['controller'] = 'index';
 		}
 
-		if(!isset($this->data['segments']['module']))
-			$this->data['segments']['module'] = '';
+		if (isset($_url[1])) {
+			$_segments['action'] = ucwords($_url[1]);
+		} else {
+			$_segments['action'] = 'index';
+		}
 
+		$this->data['controller'] = $_segments['controller'];
+		$this->data['action'] = $_segments['action'];
+		$this->data['path'] = $_dirs;
+		
 		$this->params = self::procesaParametros($_url);
 		$this->data["params"] = $this->params;
 
