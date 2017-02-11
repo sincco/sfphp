@@ -86,14 +86,14 @@ final class Reader extends \stdClass {
 		}
 	}
 
-	private function xml2array($xml) {
+	private static function xml2array($xml) {
 		$resp = array();
 		foreach ( (array) $xml as $indice => $nodo )
 			$resp[$indice] = ( is_object ( $nodo ) ) ? self::xml2array($nodo) : $nodo;
 		return $resp;
 	}
 
-	private function url() {
+	private static function url() {
 		if (isset($_SERVER['SERVER_NAME'])) {
 			return sprintf(
 				"%s://%s%s",

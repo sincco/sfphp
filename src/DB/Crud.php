@@ -66,6 +66,24 @@ class Crud extends \stdClass {
 		return $this->connector->query($query, $data);
 	}
 
+	public function _update($set,$where,$table=false) {
+		if (!$table) {
+			$table = $this->table;
+		}
+		$campos = [];
+		$condicion = [];
+		foreach ($set as $campo => $valor)
+			$campos[] = $campo . "=:" . $campo;
+		foreach ($where as $campo => $valor)
+			$condicion[] = $campo . "=:" . $campo;
+		$campos = implode(",", $campos);
+		$condicion = implode(" AND ", $condicion);
+		$query = 'UPDATE ' . $table . ' 
+			SET ' . $campos . ' WHERE ' . $condicion;
+		$parametros = array_merge($set, $where);
+		return $this->connector->query($query, $parametros);
+	}
+
 	public function table( $name ) {
 		$this->params = array();
 		$this->table = $name;
