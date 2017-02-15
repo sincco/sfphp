@@ -43,17 +43,11 @@ final class Cli extends \stdClass {
 
 		$path = "";
 
-		if(trim($segments['controller']) == "")
-			$segments['controller'] = "Index";
-		if(trim($segments['action']) == "")
-			$segments['action'] = "index";
-		if(trim($segments['module']) != "")
-			$path .= "\\{$segments['module']}";
-		$path .= "\\Controllers\\{$segments['controller']}";
-		$objClass = $this->_loadClass($path, $segments['controller']."Controller");
-		if(is_callable(array($objClass, $segments['action']))) {
-			if(strtolower($segments['action']) != 'index')
-				call_user_func(array($objClass, $segments['action']));
+		$objClass = ClassLoader::load(Request::get('path'), Request::get('controller'));
+		if(is_callable(array($objClass, Request::get('action')))) {
+			#Plugger::dispatchAction('pre', $observer);
+			call_user_func(array($objClass, Request::get('action')));
+			#Plugger::dispatchAction('post', $observer);
 		}
 		else {
 			Debug::dump("ERROR :: No es posible lanzar " . implode("->", $segments));
