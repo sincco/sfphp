@@ -30,8 +30,8 @@ final class Cli extends \stdClass {
 		$_SERVER['SERVER_SOFTWARE'] = '';
 		$_SERVER['REQUEST_METHOD'] = 'cli';
 
-		$segments = Request::get();
-		$segments = $segments[ 'segments' ];
+		#$segments = Request::get();
+		#$segments = $segments[ 'segments' ];
 
 		$_config = Reader::get('app');
 		if(isset($_config['timezone']))
