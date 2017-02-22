@@ -78,13 +78,13 @@ final class Request extends \stdClass {
 		if (isset($_url[0])) {
 			$_segments['controller'] = ucwords($_url[0]);
 		} else {
-			$_segments['controller'] = 'index';
+			$_segments['controller'] = 'Index';
 		}
 
 		if (isset($_url[1])) {
 			$_segments['action'] = ucwords($_url[1]);
 		} else {
-			$_segments['action'] = 'index';
+			$_segments['action'] = 'Index';
 		}
 
 		$this->data['controller'] = $_segments['controller'];
