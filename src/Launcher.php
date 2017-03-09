@@ -35,7 +35,6 @@ final class Launcher extends \stdClass {
 		Plugger::dispatchGlobal('pre', 'ResolveUrl');
 
 		$observer = implode('_', Request::get('path')) . '_' . Request::get('controller') . '_' . Request::get('action');
-
 		$objClass = ClassLoader::load(Request::get('path'), Request::get('controller'));
 		if(is_callable(array($objClass, Request::get('action')))) {
 			Plugger::dispatchAction('pre', $observer);
