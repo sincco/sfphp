@@ -18,6 +18,7 @@ use Sincco\Sfphp\Session;
 use Sincco\Sfphp\Messages;
 use Sincco\Sfphp\Translations;
 use Sincco\Tools\Tokenizer;
+use Sincco\Sfphp\Request;
 use Desarrolla2\Cache\Cache;
 use Desarrolla2\Cache\Adapter\File;
 
@@ -30,13 +31,14 @@ final class View extends \stdClass {
 		$path = explode('\\', $file);
 		array_push($path, $path[(count($path) - 1)]);
 		$path[count($path) - 2] = 'Views';
-		$this->file = array_pop($path) . '.html';
-		$loader = new \Twig_Loader_Filesystem(PATH_ROOT . '/app/' . implode('/', $path));
+		$path[count($path) - 1] .= ".html";
+		$this->file = implode("/", $path);
+		#$this->file = implode("/", $path) . "/" . array_pop($path) . '.html';
+		#$loader = new \Twig_Loader_Filesystem(PATH_ROOT . '/app/' . implode('/', $path));
+		$loader = new \Twig_Loader_Filesystem(PATH_ROOT . '/app/');
 		$params = [];
-		if(defined(DEV_CACHE)){
-			if (DEV_CACHE == 1) {
-				$params = array('cache' => PATH_CACHE);
-			}
+		if (DEV_CACHE) {
+			$params = array('cache' => PATH_CACHE);
 		}
 		$this->template = new \Twig_Environment($loader, $params);
 		$this->_twigFunctions();
@@ -73,6 +75,18 @@ final class View extends \stdClass {
 			return $this->_token($type);
 		});
 		$this->template->addFunction($function);
+		$function = new \Twig_SimpleFunction('initJS', function () {
+			return $this->_initJS();
+		});
+		$this->template->addFunction($function);
+		$function = new \Twig_SimpleFunction('loadJS', function () {
+			return $this->_loadJS();
+		});
+		$this->template->addFunction($function);
+		$function = new \Twig_SimpleFunction('urlSection', function () {
+			return $this->_urlSection();
+		});
+		$this->template->addFunction($function);
 	}
 
 	private function _translate($text)
@@ -100,6 +114,39 @@ final class View extends \stdClass {
 		if ($type == 'User') {
 			return Session::get('sincco\login\token');
 		}
+	}
+
+	private function _initJS() {
+		$file = $this->file;
+		$file = str_replace("Views/", "", $file);
+		$file = str_replace("/", "_", $file);
+		$file = strtolower($file);
+		$file = str_replace(".html", "", $file);
+		return $file . '.init();';
+	}
+
+	private function _loadJS() {
+		$file = $this->file;
+		$file = str_replace("Views/", "", $file);
+		$file = str_replace("/", "_", $file);
+		$file = strtolower($file);
+		$file = str_replace(".html", "", $file);
+		if (file_exists(PATH_ROOT . "html/js/" . $file . '.js')) {
+			return BASE_URL . "html/js/" . $file . '.js';
+		} else {
+			return "";
+		}
+	}
+
+	private function _urlSection() {
+		$section = implode(" ", Request::get('path'));
+		if (Request::get('controller') != "Index") {
+			$section .= " " . Request::get('controller');
+		}
+		if (Request::get('action') != "Index") {
+			$section .= " " . Request::get('action');
+		}
+		return strtoupper($section);
 	}
 
 	private function grid($data, $selection=false)
