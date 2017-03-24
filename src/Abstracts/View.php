@@ -35,6 +35,7 @@ final class View extends \stdClass {
 		$this->file = implode("/", $path);
 		#$this->file = implode("/", $path) . "/" . array_pop($path) . '.html';
 		#$loader = new \Twig_Loader_Filesystem(PATH_ROOT . '/app/' . implode('/', $path));
+		var_dump($this->file);
 		$loader = new \Twig_Loader_Filesystem(PATH_ROOT . '/app/');
 		$params = [];
 		if (DEV_CACHE) {

@@ -66,7 +66,7 @@ class Crud extends \stdClass {
 		return $this->connector->query($query, $data);
 	}
 
-	public function _update($set,$where,$table=false) {
+	public function update($set,$where,$table=false) {
 		if (!$table) {
 			$table = $this->table;
 		}
