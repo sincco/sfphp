@@ -31,19 +31,15 @@ final class View extends \stdClass {
 		$path = explode('\\', $file);
 		array_push($path, $path[(count($path) - 1)]);
 		$path[count($path) - 2] = 'Views';
-		$path[count($path) - 1] .= ".html";
-		$this->file = implode("/", $path);
-		#$this->file = implode("/", $path) . "/" . array_pop($path) . '.html';
-		#$loader = new \Twig_Loader_Filesystem(PATH_ROOT . '/app/' . implode('/', $path));
-		var_dump($this->file);
-		$loader = new \Twig_Loader_Filesystem(PATH_ROOT . '/app/');
-		$params = [];
-		if (DEV_CACHE) {
-			$params = array('cache' => PATH_CACHE);
-		}
+		$this->file = array_pop($path) . '.html';
+		$loader = new \Twig_Loader_Filesystem(PATH_ROOT . '/app/' . implode('/', $path));
+		$params = array('cache' => PATH_CACHE);
+		if(defined('DEV_CACHE'))
+			$params = array();
 		$this->template = new \Twig_Environment($loader, $params);
 		$this->_twigFunctions();
 	}
+
 
 	public function render($params = array())
 	{
