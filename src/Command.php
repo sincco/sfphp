@@ -18,6 +18,8 @@ use Sincco\Sfphp\Config\Writer;
 use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Crypt;
 use Sincco\Sfphp\DB\DataManager;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 final class Command extends \stdClass {
 
