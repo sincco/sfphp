@@ -17,11 +17,33 @@
         "desarrolla2/cache":  "~2.0",
         "symfony/process": "3.*.*",
         "league/climate": "~3.2.1",
+        "fbourigault/composer-mkdir": "^2.0",
         "twig/twig": "1.27.0"
     },
     "autoload": {
         "psr-4": {
             "Sincco\\Sfphp\\": "src"
         }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "Fbourigault\\ComposerMkdir\\ScriptHandler::mkdirs"
+        ],
+        "post-update-cmd": [
+            "Fbourigault\\ComposerMkdir\\ScriptHandler::mkdirs"
+        ]
+    },
+    "extra": {
+        "fbourigault-composer-mkdir": [
+            "../../app/Controllers",
+            "../../app/Models",
+            "../../app/Views",
+            "../../app/Helpers",
+            "../../var/cache",
+            "../../var/session",
+            "../../var/log",
+            "../../var/tmp",
+            "../../etc/config"
+        ]
     }
 }
