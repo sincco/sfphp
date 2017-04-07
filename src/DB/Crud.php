@@ -47,6 +47,7 @@ class Crud extends \stdClass {
 		$this->fields 	= array();
 		$this->params = array();
 		$this->query 	= NULL;
+		return $this;
 	}
 
 	public function insert($data, $tabla=false) {

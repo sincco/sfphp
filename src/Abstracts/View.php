@@ -84,6 +84,10 @@ final class View extends \stdClass {
 			return $this->_urlSection();
 		});
 		$this->template->addFunction($function);
+		$function = new \Twig_SimpleFunction('getUrl', function ($url) {
+			return $this->_getUrl($url);
+		});
+		$this->template->addFunction($function);
 	}
 
 	private function _translate($text)
@@ -128,8 +132,8 @@ final class View extends \stdClass {
 		$file = str_replace("/", "_", $file);
 		$file = strtolower($file);
 		$file = str_replace(".html", "", $file);
-		if (file_exists(PATH_ROOT . "html/js/" . $file . '.js')) {
-			return BASE_URL . "html/js/" . $file . '.js';
+		if (file_exists(PATH_ROOT . "public/js/views/" . $file . '.js')) {
+			return BASE_URL . "public/js/views/" . $file . '.js';
 		} else {
 			return "";
 		}
@@ -144,6 +148,10 @@ final class View extends \stdClass {
 			$section .= " " . Request::get('action');
 		}
 		return strtoupper($section);
+	}
+
+	private function _getUrl($url) {
+		return BASE_URL . $url;
 	}
 
 	private function grid($data, $selection=false)

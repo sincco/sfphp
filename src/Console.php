@@ -21,7 +21,7 @@ use Sincco\Sfphp\DB\DataManager;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
-final class Command extends \stdClass {
+final class Console extends \stdClass {
 
 	public function run($argv) {
 		Paths::init();
