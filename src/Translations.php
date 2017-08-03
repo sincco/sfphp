@@ -44,16 +44,18 @@ final class Translations extends \stdClass {
 		if(!self::$instance instanceof self)
 			self::$instance = new self();
 		$translations = self::$instance->cache->get('translations');
-		$translation = $translations[$locale];
 		$response = '';
-		foreach ($translation as $_translation) {
-			if (strtoupper(trim($_translation[0])) == strtoupper(trim($text))) {
-				$response = $_translation[1];
-				 break;
+		if (isset($translations[$locale])) {
+			$translation = $translations[$locale];
+			foreach ($translation as $_translation) {
+				if (strtoupper(trim($_translation[0])) == strtoupper(trim($text))) {
+					$response = $_translation[1];
+					 break;
+				}
 			}
-		}
-		if (trim($response) == '') {
-			$response = $text;
+			if (trim($response) == '') {
+				$response = $text;
+			}
 		}
 		return $response;
 	}
