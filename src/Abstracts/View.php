@@ -7,7 +7,7 @@
 #
 # -----------------------
 # @author: Iván Miranda
-# @version: 1.0.0
+# @version: 2.0.0
 # -----------------------
 # Ejecución de eventos según la petición realizada desde el navegador
 # -----------------------
@@ -64,7 +64,7 @@ final class View extends \stdClass {
 
 	private function _twigFunctions() 
 	{
-		$function = new \Twig_SimpleFunction('translate', function ($text) {
+		$function = new \Twig_SimpleFunction('__', function ($text) {
 			return $this->_translate($text);
 		});
 		$this->template->addFunction($function);

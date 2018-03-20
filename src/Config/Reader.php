@@ -7,7 +7,7 @@
 #
 # -----------------------
 # @author: Iván Miranda
-# @version: 1.0.0
+# @version: 2.0.0
 # -----------------------
 # Carga de configuración de la APP
 # -----------------------
@@ -27,8 +27,9 @@ final class Reader extends \stdClass {
 		$this->cache = new Cache($adapter);
 		if(is_null($this->cache->get('config'))) {
 			$file = PATH_CONFIG . "/config.xml";
-			if(file_exists(PATH_CONFIG . "/config_local.xml"))
+			if(file_exists(PATH_CONFIG . "/config_local.xml")) {
 				$file = PATH_CONFIG . "/config_local.xml";
+			}
 
 			if(!file_exists($file)) {
 				$_config = array();
@@ -45,22 +46,28 @@ final class Reader extends \stdClass {
 	}
 
 	public static function get($atributo = '') {
-		if(!self::$instance instanceof self)
+		if (!self::$instance instanceof self) {
 			self::$instance = new self();
+		}
 		$_config = self::$instance->cache->get('config');
 		self::defineConstants($_config);
-		if(strlen(trim($atributo)))
-			if(isset($_config[$atributo]))
+		if (strlen(trim($atributo))) {
+			if (isset($_config[$atributo])) {
 				return $_config[$atributo];
-			else
+			}
+			else {
 				return NULL;
-		else
+			}
+		}
+		else {
 			return $_config;
+		}
 	}
 
 	private static function defineConstants($array) {
-		if(!isset($array["front"]["url"]))
+		if(!isset($array["front"]["url"])) {
 			$array["front"]["url"] = self::url();
+		}
 		if(!defined("BASE_URL") && isset($array['front'])) {
 			define("BASE_URL",$array["front"]["url"]);
 		}

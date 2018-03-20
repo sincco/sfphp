@@ -7,7 +7,7 @@
 #
 # -----------------------
 # @author: Iván Miranda
-# @version: 1.0.0
+# @version: 2.0.0
 # -----------------------
 # Ejecución de eventos según la petición realizada desde el navegador
 # -----------------------
@@ -18,7 +18,6 @@ use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Request;
 use Sincco\Sfphp\Response;
 use Sincco\Sfphp\Translations;
-use Sincco\Tools\Debug;
 use Sincco\Sfphp\Plugger;
 use Sincco\Sfphp\ClassLoader;
 

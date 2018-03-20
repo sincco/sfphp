@@ -7,29 +7,31 @@
 #
 # -----------------------
 # @author: Iván Miranda (@deivanmiranda)
-# @version: 1.0.0
+# @version: 2.0.0
 # -----------------------
 
 namespace Sincco\Sfphp;
 
-use Sincco\Sfphp\Paths;
-use Sincco\Sfphp\Messages;
-use Sincco\Sfphp\Session;
 use Sincco\Sfphp\Launcher;
-use Sincco\Tools\Debug;
+use Sincco\Sfphp\Logger;
+use Sincco\Sfphp\Messages;
+use Sincco\Sfphp\Paths;
+use Sincco\Sfphp\Session;
 use Sincco\Sfphp\Translations;
 use Sincco\Sfphp\Config\Reader;
+use Sincco\Tools\Debug;
+
 
 final class App extends \stdClass
 {
 	static public function run()
 	{
+		Logger::register();
 		try {
 			Paths::init();
 			Messages::init();
-			Reader::get('app');
-			if (!defined('DEV_SHOWERRORS')) {
-				define('DEV_SHOWERRORS', false);
+			if (is_null(Reader::get('app'))) {
+				errorException(new \ErrorException('No existe el archivo de configuración', 0, 0, 'App.php', 33));
 			}
 			if (!defined('APP_KEY')) {
 				define('APP_KEY', 'e77393ef-c24b-4ff5-81f7-ed9fa28b4fb8');
@@ -41,13 +43,7 @@ final class App extends \stdClass
 			Session::get();
 			new Launcher();
 		}catch (\Exception $err) {
-			$errorInfo = sprintf( '%s: %s in %s on line %s.',
-				'Error',
-				$err,
-				$err->getFile(),
-				$err->getLine()
-			);
-			Debug::dump( $errorInfo );
+			errorException(new \ErrorException($err, 0, 0, $err->getFile(), $err->getLine()));
 		}
 	}
 }
