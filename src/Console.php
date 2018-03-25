@@ -18,12 +18,14 @@ use Sincco\Sfphp\Config\Writer;
 use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Crypt;
 use Sincco\Sfphp\DB\DataManager;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
+use League\CLImate\CLImate;
 
 final class Console extends \stdClass {
+	protected $cli;
 
 	public function run($argv) {
+		$_SERVER['REQUEST_METHOD'] = 'cli';
+
 		Paths::init();
 		Reader::get('app');
 
@@ -35,35 +37,46 @@ final class Console extends \stdClass {
 			new Cli('/' . $arguments[0]);
 			return;
 		}
+		try {
 
-		// If it's an internal function on this script
-		$command = array_shift($argv);
-		$action = array_shift($argv);
-		$params = $argv;
+			// If it's an internal function on this script
+			$command = array_shift($argv);
+			$action = array_shift($argv);
+			$params = $argv;
 
-		// Check if its an function registered on this script
-		// if not launc the cli interface of framework
-		if(is_callable(array($this,$command . '_' . $action)))
-			call_user_func_array(array($this,$command . '_' . $action), $params);
-		else
-			echo 'No existe el comando solicitado';
+			// Check if its an function registered on this script
+			// if not launc the cli interface of framework
+			if(is_callable(array($this,$command . '_' . $action))) {
+				$params = [];
+				$ref = new \ReflectionMethod($this,$command . '_' . $action);
+				$int = 0;
+				foreach ($ref->getParameters() as $key => $value) {
+					$int++;
+				 	$params[] = $value->name;
+				}
+				var_dump($params);die()
+				call_user_func_array(array($this,$command . '_' . $action), $params);
+			}
+			else {
+				throw new \Exception('No existe el comando especificado. [help] para ayuda', 0);
+			}
+		}catch (\Exception $err) {
+			errorException(new \ErrorException($err, 0, 0, $err->getFile(), $err->getLine()));
+		}
 	}
 
 	public function help_() {
-		echo 'Comandos disponibles' . PHP_EOL;
 		$commands = get_class_methods($this);
+		$data = [];
 		foreach ($commands as $command) {
+			$command = str_replace('help_', 'help', $command);
 			$command = explode('_', $command);
-			if(count($command) > 1){
-				echo '     ' . implode(' ', $command) ;
-				$ref = new \ReflectionMethod($this,implode('_', $command));
-				$params = [];
-				foreach ($ref->getParameters() as $key => $value) {
-				 	$params[] = $value->name;
-				 }
-				echo ' [' . implode('] [', $params) . ']' . PHP_EOL;
+			if (count($command) > 1){
+				$data[] = ['Comandos'=>implode(' ', $command)];
 			}
 		}
+		$cli = new CLImate;
+		$cli->table($data);
 	}
 
 	// ------------------------------

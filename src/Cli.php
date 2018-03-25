@@ -14,9 +14,9 @@
 
 namespace Sincco\Sfphp;
 
+use Sincco\Sfphp\Console;
 use Sincco\Sfphp\Request;
 use Sincco\Sfphp\Config\Reader;
-use Sincco\Tools\Debug;
 
 final class Cli extends \stdClass {
 	private $data;
@@ -25,32 +25,26 @@ final class Cli extends \stdClass {
 	private static $_instance;
 
 	public function __construct($url) {
-		$_GET[ 'url' ] = $url;
+		Logger::register();
+		Paths::init();
+		Messages::init();
+
+		$_GET['url'] = $url;
 
 		$_SERVER['SERVER_SOFTWARE'] = '';
 		$_SERVER['REQUEST_METHOD'] = 'cli';
 
-		#$segments = Request::get();
-		#$segments = $segments[ 'segments' ];
-
 		$_config = Reader::get('app');
-		if(isset($_config['timezone']))
+		if(isset($_config['timezone'])) {
 			date_default_timezone_set($_config['timezone']);
-
-		Debug::path(PATH_LOGS);
-		Debug::reporting(DEV_SHOWERRORS);
-		Debug::cli(1);
-
-		$path = "";
+		}
 
 		$objClass = ClassLoader::load(Request::get('path'), Request::get('controller'));
 		if(is_callable(array($objClass, Request::get('action')))) {
-			#Plugger::dispatchAction('pre', $observer);
 			call_user_func(array($objClass, Request::get('action')));
-			#Plugger::dispatchAction('post', $observer);
 		}
 		else {
-			Debug::dump("ERROR :: No es posible lanzar " . implode("->", $segments));
+			throw new \Exception('No es posible lanzar ' . Request::get('controller') . '->' . Request::get('action'), 0);
 		}
 	}
 
@@ -63,5 +57,4 @@ final class Cli extends \stdClass {
 			return new \stdClass();
 		}
 	}
-
 }

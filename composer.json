@@ -15,7 +15,6 @@
         "sincco/singleton": "1.0",
         "monolog/monolog": "1.20",
         "desarrolla2/cache":  "2.0",
-        "symfony/process": "3.0.0",
         "league/climate": "3.2.1",
         "fbourigault/composer-mkdir": "^2.0",
         "twig/twig": "1.27.0"

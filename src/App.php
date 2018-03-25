@@ -31,7 +31,7 @@ final class App extends \stdClass
 			Paths::init();
 			Messages::init();
 			if (is_null(Reader::get('app'))) {
-				errorException(new \ErrorException('No existe el archivo de configuración', 0, 0, 'App.php', 33));
+				throw new \Exception('No existe el archivo de configuración', 0);
 			}
 			if (!defined('APP_KEY')) {
 				define('APP_KEY', 'e77393ef-c24b-4ff5-81f7-ed9fa28b4fb8');
