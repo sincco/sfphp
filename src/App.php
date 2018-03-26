@@ -19,7 +19,6 @@ use Sincco\Sfphp\Paths;
 use Sincco\Sfphp\Session;
 use Sincco\Sfphp\Translations;
 use Sincco\Sfphp\Config\Reader;
-use Sincco\Tools\Debug;
 
 
 final class App extends \stdClass

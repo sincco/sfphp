@@ -103,8 +103,8 @@ class Crud extends \stdClass {
 		return $this;
 	}
 
-	public function join( $table, $on, $type = 'INNER') {
-		array_push( $this->joins, serialize( array( $table, $on, $type ) ) );
+	public function join( $table, $on, $type = 'INNER', $onType = 'ON') {
+		array_push( $this->joins, serialize( array( $table, $on, $type, $onType ) ) );
 		return $this;
 	}
 
@@ -119,15 +119,19 @@ class Crud extends \stdClass {
 		return $this;
 	}
 
-	public function getCollection() {
-		$params = array();
-		foreach ( $this->params as $param ) {
-			foreach ( $param as $key => $value ) {
-				$params[ $key ] = $value;
+	public function getCollection($query=NULL, $params=[]) {
+		if (!is_null($query)) {
+			$data = $this->_->query( $query, $params );
+		} else {
+			$params = array();
+			foreach ( $this->params as $param ) {
+				foreach ( $param as $key => $value ) {
+					$params[ $key ] = $value;
+				}
 			}
+			$this->generateSql();
+			$data = $this->_->query( $this->query, $params );
 		}
-		$this->generateSql();
-		$data = $this->_->query( $this->query, $params );
 		$result = array();
 		foreach ( $data as $row ) {
 			$object = new \stdClass();
@@ -139,15 +143,19 @@ class Crud extends \stdClass {
 		return $result;
 	}
 
-	public function getData() {
-		$params = array();
-		foreach ( $this->params as $param ) {
-			foreach ( $param as $key => $value ) {
-				$params[ $key ] = $value;
+	public function getData($query=NULL, $params=[]) {
+		if (!is_null($query)) {
+			return $this->_->query( $query, $params );
+		} else {
+			$params = array();
+			foreach ( $this->params as $param ) {
+				foreach ( $param as $key => $value ) {
+					$params[ $key ] = $value;
+				}
 			}
+			$this->generateSql();
+			return $this->_->query( $this->query, $params );
 		}
-		$this->generateSql();
-		return $this->_->query( $this->query, $params );
 	}
 
 	/**
@@ -167,7 +175,7 @@ class Crud extends \stdClass {
 		$joins = '';
 		foreach ( $this->joins as $join ) {
 			$join = unserialize( $join );
-			$joins .= ' ' . $join[2] . ' JOIN ' . $join[0] . ' ON (' . $join[1] . ') ';
+			$joins .= ' ' . $join[2] . ' JOIN ' . $join[0] . ' ' . $join[3] . ' (' . $join[1] . ') ';
 		}
 		if( strlen( trim( $joins ) ) )
 			$query .= $joins;

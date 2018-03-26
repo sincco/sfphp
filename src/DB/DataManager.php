@@ -15,9 +15,10 @@
 namespace Sincco\Sfphp\DB;
 
 use Sincco\Sfphp\DB\Connector;
-use Sincco\Tools\Debug;
+use Sincco\Sfphp\Logger;
 use Desarrolla2\Cache\Cache;
 use Desarrolla2\Cache\Adapter\File;
+
 
 class DataManager extends Connector {
 
@@ -89,12 +90,12 @@ class DataManager extends Connector {
 		$cache = new Cache($adapter);
 		$rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
 		$statement = strtolower($rawStatement[0]);
-		if(!defined('DEV_CACHE')) {
-			if(!is_null($cache->get($this->connectionData['type'].$idQuery))) {
+		if (!defined('DEV_CACHE')) {
+			if (!is_null($cache->get($this->connectionData['type'].$idQuery))) {
 				$reponse = $cache->get($this->connectionData['type'].$idQuery);
 			}
 		}
-		if(!$response) {
+		if (!$response) {
 			$this->Init($query, $params);
 			switch ( $statement ) {
 				case 'select':
@@ -112,8 +113,9 @@ class DataManager extends Connector {
 					break;
 			}
 		}
-		if(!defined('DEV_CACHE'))
+		if (!defined('DEV_CACHE')) {
 			$cache->set($this->connectionData['type'].$idQuery, $response);
+		}
 		return $response;
 	}
 	
