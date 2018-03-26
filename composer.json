@@ -16,7 +16,8 @@
         "monolog/monolog": "1.20",
         "desarrolla2/cache":  "2.0",
         "league/climate": "3.2.1",
-        "fbourigault/composer-mkdir": "^2.0",
+        "symfony/filesystem": "^3.4",
+        "composer/composer": "^1.6",
         "twig/twig": "1.27.0"
     },
     "autoload": {
@@ -30,19 +31,6 @@
         ],
         "post-update-cmd": [
             "Fbourigault\\ComposerMkdir\\ScriptHandler::mkdirs"
-        ]
-    },
-    "extra": {
-        "fbourigault-composer-mkdir": [
-            "../../app/Controllers",
-            "../../app/Models",
-            "../../app/Views",
-            "../../app/Helpers",
-            "../../var/cache",
-            "../../var/session",
-            "../../var/log",
-            "../../var/tmp",
-            "../../etc/config"
         ]
     }
 }

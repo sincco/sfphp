@@ -18,10 +18,14 @@ use Sincco\Sfphp\Config\Writer;
 use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Crypt;
 use Sincco\Sfphp\DB\DataManager;
+
 use League\CLImate\CLImate;
+use Composer\Factory;
+use Composer\Console\Application;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Console\Input\ArrayInput;
 
 final class Console extends \stdClass {
-	protected $cli;
 
 	public function run($argv) {
 		$_SERVER['REQUEST_METHOD'] = 'cli';
@@ -37,8 +41,8 @@ final class Console extends \stdClass {
 			new Cli('/' . $arguments[0]);
 			return;
 		}
-		try {
 
+		try {
 			// If it's an internal function on this script
 			$command = array_shift($argv);
 			$action = array_shift($argv);
@@ -52,9 +56,10 @@ final class Console extends \stdClass {
 				$int = 0;
 				foreach ($ref->getParameters() as $key => $value) {
 					$int++;
-				 	$params[] = $value->name;
+				 	$cli = new CLImate;
+				 	$input = $cli->input($value->name . '?');
+				 	$params[]= $input->prompt();
 				}
-				var_dump($params);die()
 				call_user_func_array(array($this,$command . '_' . $action), $params);
 			}
 			else {
@@ -85,29 +90,29 @@ final class Console extends \stdClass {
 
 	/**
 	 * Defines main configuration app
-	 * @param  string $cia
-	 * @param  string $url
-	 * @return none
 	 */
-	public function app_init($app, $cia, $url, $force = '') {
+	public function app_init($nombreApp, $cliente, $url, $force_yN = 'N') {
+		$climate = new CLImate;
 		$_SERVER['SERVER_NAME'] = NULL;
 		$_SERVER['REQUEST_URI'] = NULL;
 		$config = Reader::get();
-		if(count($config)) {
-			if(strtolower(trim($force)) == 'force')
+		if (count($config)) {
+			if (strtolower(trim($force_yN)) == 'y') {
 				$this->cache_clean();
-			else
-				die('Ya existe una configuración, si desea reiniciar la APP especifique la opción "force"'.PHP_EOL);
+			}
+			else {
+				$climate->red('Ya existe una configuración, si desea reiniciar la APP especifique la opción "force"');
+			}
 		}
-		echo 'Reiniciando configuración de aplicación...' . PHP_EOL;
+		$climate->green('Reiniciando configuración de aplicación...');
 		$_llave_encripcion = strtoupper(md5(microtime().rand()));
 		$bases = [];
 		$_config = [
 			'app' => [
 				'key' => $_llave_encripcion,
-				'name' => $app,
-				'company' => $cia,
-				'timezone' => 'America/Chicago',
+				'name' => $nombreApp,
+				'company' => $cliente,
+				'timezone' => 'America/Mexico_City',
 			],
 			'front' => [
 				'url' => $url,
@@ -115,7 +120,7 @@ final class Console extends \stdClass {
 			'bases' => $bases,
 			'sesion' => [
 				'type' => 'DEFAULT',
-				'name' => str_replace(' ', '', strtolower($app)),
+				'name' => str_replace(' ', '', strtolower($nombreApp)),
 				'ssl' => 0,
 				'inactivity' => 300,
 			],
@@ -123,35 +128,37 @@ final class Console extends \stdClass {
 				'showerrors' => 1,
 			],
 		];
-		if(!defined('APP_KEY')) {
+		if (!defined('APP_KEY')) {
 			define('APP_KEY', $_llave_encripcion);
 		}
+
+		$fileSystem = new Filesystem();
+		if (!$fileSystem->exists('etc/config')) {
+			$fileSystem->mkdir('etc/config/', 0750);
+		}
+
 		Writer::write($_config, 'config', 'etc/config/config.xml');
-		chmod("./etc/config/config.xml", 0775);
-		echo 'Archivo de configuración inicializado' . PHP_EOL;
+		$fileSystem->chmod('etc/config/config.xml', 0750);
+		$climate->lightGreen('Archivo de configuración inicializado');
 	}
 
 	/**
 	 * Adds new connection data for a DB
-	 * @param  string $id       
-	 * @param  string $type     
-	 * @param  string $host     
-	 * @param  string $user     
-	 * @param  string $bdname   
-	 * @param  string $password 
 	 * @return none           
 	 */
-	public function app_db($id, $type, $host, $user, $dbname, $password){
-		echo 'Registrando base de datos...' . PHP_EOL;
+	public function app_db($identificador, $tipo, $host, $user, $dbname, $password){
+		$fileSystem = new Filesystem();
+		$climate = new CLImate;
+		$climate->green('Registrando base de datos...');
 		$config = Reader::get();
-		$config['bases'][$id]['type'] = $type;
-		$config['bases'][$id]['host'] = $host;
-		$config['bases'][$id]['user'] = $user;
-		$config['bases'][$id]['dbname'] = $dbname;
-		$config['bases'][$id]['password'] = Crypt::encrypt($password);
+		$config['bases'][$identificador]['type'] = $tipo;
+		$config['bases'][$identificador]['host'] = $host;
+		$config['bases'][$identificador]['user'] = $user;
+		$config['bases'][$identificador]['dbname'] = $dbname;
+		$config['bases'][$identificador]['password'] = Crypt::encrypt($password);
 		Writer::write($config, 'config', 'etc/config/config.xml');
-		chmod("./etc/config/config.xml", 0775);
-		echo 'OK' . PHP_EOL;
+		$fileSystem->chmod('etc/config/config.xml', 0750);
+		$climate->lightGreen('OK');
 	}
 
 	/**
@@ -159,10 +166,19 @@ final class Console extends \stdClass {
 	 * @return none
 	 */
 	public function app_update() {
-		echo 'Aplicando actualizaciones...' . PHP_EOL;
-		exec('git pull origin master');
-		exec('composer update');
-		echo 'Terminado' . PHP_EOL;
+		$climate = new CLImate;
+		$progress = $climate->progress()->total(2);
+		$progress->advance(1, 'Actualizando dependencias...');
+		$app = new Application();
+		$factory = new Factory();
+		$output = $factory->createOutput();
+		$input = new ArrayInput(array(
+		  'command' => 'update',
+		));
+		$input->setInteractive(false);
+		$cmdret = $app->doRun($input,$output);		
+		$progress->advance(1, 'Hecho');
+		$climate->lightGreen('Ok');
 	}
 
 	// ------------------------------
@@ -175,8 +191,10 @@ final class Console extends \stdClass {
 	 * @return none      
 	 */
 	public function db_backup($dbId) {
-		if(trim($dbId) == '')
+		$climate = new CLImate;
+		if (trim($dbId) == '') {
 			$dbId = 'default';
+		}
 		$data = Reader::get('bases');
 		$data = $data[$dbId];
 		$data['password'] = trim(Crypt::decrypt($data['password']));
@@ -296,7 +314,8 @@ final class Console extends \stdClass {
 	 * @return none
 	 */
 	public function cache_clean($file = PATH_CACHE) {
-		echo 'Limpiando cache...' . PHP_EOL;
+		$climate = new CLImate;
+		$climate->green('Limpiando cache...');
 		$files = glob($file . '/*'); 
 		foreach($files as $file){
 			if (is_dir($file) and !in_array($file, array('..', '.')))  {
@@ -306,56 +325,29 @@ final class Console extends \stdClass {
 				unlink($file); 
 			}
 		}
-		echo 'Cache limpia' . PHP_EOL;
+		$climate->lightGreen('Ok');
 	}
 
 	public function cache_off() {
-		echo 'Apagando cache...' . PHP_EOL;
+		$climate = new CLImate;
+		$climate->green('Desactivando cache...');
 		$config = Reader::get();
 		$config['dev']['cache'] = 0;
 		Writer::write($config, 'config', 'etc/config/config.xml');
-		chmod("./etc/config/config.xml", 0775);
-		echo 'OK' . PHP_EOL;
+		$fileSystem = new Filesystem();
+		$fileSystem->chmod('etc/config/config.xml', 0750);
+		$climate->lightGreen('Ok');
 	}
 
 	public function cache_on() {
-		echo 'Encendiendo cache...' . PHP_EOL;
+		$climate = new CLImate;
+		$climate->green('Activando cache...');
 		$config = Reader::get();
 		$config['dev']['cache'] = 1;
 		Writer::write($config, 'config', 'etc/config/config.xml');
-		chmod("./etc/config/config.xml", 0775);
-		echo 'OK' . PHP_EOL;
-	}
-
-	public function app_user($name, $email, $password) {
-		include_once(PATH_ROOT . '/app/Helpers/UsersAccount.php');
-		include_once(PATH_ROOT . '/app/Catalogo/Models/Usuarios.php');
-		$class = 'UsersAccountHelper';
-		$helper = Singleton::get($class);
-		$mdlUsuarios = Singleton::get('UsuariosModel');
-		$data = array('user'=>$name,'email'=>$email,'password'=>$password);
-		$userId = $helper->createUser($data);
-		
-		$data = Reader::get('bases');
-		$data = $data['default'];
-		$data['password'] = trim(Crypt::decrypt($data['password']));
-		$db = new DataManager($data);
-		$data = $db->query('SELECT MAX(userId) userId FROM __usersControl');
-		$userId = array_pop($data);
-		$userId = $userId['userId'];
-		echo 'Usuario creado ' . $userId . PHP_EOL;
-	}
-
-	public function extra_elasticemail($username, $api_key, $from, $test=0) {
-		echo 'Registrando elastic email...' . PHP_EOL;
-		$config = Reader::get();
-		$config['elasticemail']['username'] = $username;
-		$config['elasticemail']['api_key'] = $api_key;
-		$config['elasticemail']['from'] = $from;
-		$config['elasticemail']['test'] = $test;
-		Writer::write($config, 'config', 'etc/config/config.xml');
-		chmod("./etc/config/config.xml", 0775);
-		echo 'OK' . PHP_EOL;
+		$fileSystem = new Filesystem();
+		$fileSystem->chmod('etc/config/config.xml', 0750);
+		$climate->lightGreen('Ok');
 	}
 
 	// ------------------------------

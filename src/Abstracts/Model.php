@@ -20,8 +20,9 @@ use Sincco\Sfphp\Crypt;
 abstract class Model extends \Sincco\Sfphp\DB\Crud {
 	
 	public function __construct( $dataBase = NULL ) {
-		if( is_null( $dataBase ) )
+		if ( is_null( $dataBase ) ) {
 			$dataBase = 'default';
+		}
 		$_config = Reader::get( 'bases' );
 		$base = $_config[ $dataBase ];
 		$base[ 'password' ] = Crypt::decrypt( $base[ 'password' ] );

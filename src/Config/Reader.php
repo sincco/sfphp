@@ -27,11 +27,11 @@ final class Reader extends \stdClass {
 		$this->cache = new Cache($adapter);
 		if(is_null($this->cache->get('config'))) {
 			$file = PATH_CONFIG . "/config.xml";
-			if(file_exists(PATH_CONFIG . "/config_local.xml")) {
+			if (file_exists(PATH_CONFIG . "/config_local.xml")) {
 				$file = PATH_CONFIG . "/config_local.xml";
 			}
 
-			if(!file_exists($file)) {
+			if (!file_exists($file)) {
 				$_config = array();
 			} else {
 				$_config = self::xml2array(new \SimpleXMLElement(file_get_contents($file)));

@@ -27,146 +27,147 @@ class DataManager extends Connector {
 	private $log;
 	private $parameters;
 	private $connectionData;
-    private $cache;
+	private $cache;
 
-    private function Init($query, $parameters = "") {
-        try {
-            $this->sQuery = $this->prepare($query);
-            
-            $this->bindMore($parameters);
-            
-            if (!empty($this->parameters)) {
-                foreach ($this->parameters as $param => $value) {
-                    
-                    $type = self::PARAM_STR;
-                    switch ($value[1]) {
-                        case is_int($value[1]):
-                            $type = self::PARAM_INT;
-                            break;
-                        case is_bool($value[1]):
-                            $type = self::PARAM_BOOL;
-                            break;
-                        case is_null($value[1]):
-                            $type = self::PARAM_NULL;
-                            break;
-                    }
-                    $this->sQuery->bindValue($value[0], $value[1], $type);
-                }
-            }
-            
-            $this->sQuery->execute();
-        } catch (\PDOException $err) {
-            $errorInfo = sprintf( '%s: %s in %s on line %s.',
-                'Database Error',
-                $err,
-                $err->getFile(),
-                $err->getLine()
-            );
-            Debug::dump( $errorInfo );
-        }
-        
-        $this->parameters = array();
-    }
-    
-    public function bind($para, $value) {
-        $this->parameters[sizeof($this->parameters)] = [":" . $para , $value];
-    }
+	private function Init($query, $parameters = "") {
+		try {
+			$this->sQuery = $this->prepare($query);
+			
+			$this->bindMore($parameters);
+			
+			if (!empty($this->parameters)) {
+				foreach ($this->parameters as $param => $value) {
+					
+					$type = self::PARAM_STR;
+					switch ($value[1]) {
+						case is_int($value[1]):
+							$type = self::PARAM_INT;
+							break;
+						case is_bool($value[1]):
+							$type = self::PARAM_BOOL;
+							break;
+						case is_null($value[1]):
+							$type = self::PARAM_NULL;
+							break;
+					}
+					$this->sQuery->bindValue($value[0], $value[1], $type);
+				}
+			}
+			
+			$this->sQuery->execute();
+		} catch (\PDOException $err) {
+			$errorInfo = sprintf( '%s: %s in %s on line %s.',
+				'Database Error',
+				$err,
+				$err->getFile(),
+				$err->getLine()
+			);
+			throw new \Exception($errorInfo, 0);
+		}
+		
+		$this->parameters = array();
+	}
+	
+	public function bind($para, $value) {
+		$this->parameters[sizeof($this->parameters)] = [":" . $para , $value];
+	}
 
-    public function bindMore($parray) {
-        if (empty($this->parameters) && is_array($parray)) {
-            $columns = array_keys($parray);
-            foreach ($columns as $i => &$column) {
-                $this->bind($column, $parray[$column]);
-            }
-        }
-    }
-    
-    public function query($query, $params = null, $fetchmode = self::FETCH_ASSOC) {
-        $response = false;
-        $query = trim(str_replace("\r", " ", $query));
-        $idQuery = md5($query . serialize($params));
-        $adapter = new File(PATH_CACHE);
-        $cache = new Cache($adapter);
-        $rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
-        $statement = strtolower($rawStatement[0]);
-        if(!defined('DEV_CACHE')) {
-            if(!is_null($cache->get($this->connectionData['type'].$idQuery))) {
-                $reponse = $cache->get($this->connectionData['type'].$idQuery);
-            }
-        }
-        if(!$response) {
-            $this->Init($query, $params);
-            switch ( $statement ) {
-                case 'select':
-                case 'show':
-                    $response = $this->sQuery->fetchAll( $fetchmode );
-                    break;
-                case 'insert':
-                    $response = $this->insertId();
-                    break;
-                case 'update':
-                case 'delete':
-                    $response = $this->sQuery->rowCount();
-                default:
-                    $response = NULL;
-                    break;
-            }
-        }
-        if(!defined('DEV_CACHE'))
-            $cache->set($this->connectionData['type'].$idQuery, $response);
-        return $response;
-    }
-    
-    public function insertId() {
-        return $this->lastInsertId();
-    }
-    
-    public function beginTransaction() {
-        return $this->beginTransaction();
-    }
-    
-    public function executeTransaction() {
-        return $this->commit();
-    }
-    
-    public function rollBack() {
-        return $this->rollBack();
-    }
-    
-    public function column($query, $params = null) {
-        $this->Init($query, $params);
-        $Columns = $this->sQuery->fetchAll(self::FETCH_NUM);
-        
-        $column = null;
-        
-        foreach ($Columns as $cells) {
-            $column[] = $cells[0];
-        }
-        
-        return $column;
-    }
+	public function bindMore($parray) {
+		if (empty($this->parameters) && is_array($parray)) {
+			$columns = array_keys($parray);
+			foreach ($columns as $i => &$column) {
+				$this->bind($column, $parray[$column]);
+			}
+		}
+	}
+	
+	public function query($query, $params = null, $fetchmode = self::FETCH_ASSOC) {
+		$response = false;
+		$query = trim(str_replace("\r", " ", $query));
+		$idQuery = md5($query . serialize($params));
+		$adapter = new File(PATH_CACHE);
+		$cache = new Cache($adapter);
+		$rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
+		$statement = strtolower($rawStatement[0]);
+		if(!defined('DEV_CACHE')) {
+			if(!is_null($cache->get($this->connectionData['type'].$idQuery))) {
+				$reponse = $cache->get($this->connectionData['type'].$idQuery);
+			}
+		}
+		if(!$response) {
+			$this->Init($query, $params);
+			switch ( $statement ) {
+				case 'select':
+				case 'show':
+					$response = $this->sQuery->fetchAll( $fetchmode );
+					break;
+				case 'insert':
+					$response = $this->insertId();
+					break;
+				case 'update':
+				case 'delete':
+					$response = $this->sQuery->rowCount();
+				default:
+					$response = NULL;
+					break;
+			}
+		}
+		if(!defined('DEV_CACHE'))
+			$cache->set($this->connectionData['type'].$idQuery, $response);
+		return $response;
+	}
+	
+	public function insertId() {
+		return $this->lastInsertId();
+	}
+	
+	public function beginTransaction() {
+		return $this->beginTransaction();
+	}
+	
+	public function executeTransaction() {
+		return $this->commit();
+	}
+	
+	public function rollBack() {
+		return $this->rollBack();
+	}
+	
+	public function column($query, $params = null) {
+		$this->Init($query, $params);
+		$Columns = $this->sQuery->fetchAll(self::FETCH_NUM);
+		
+		$column = null;
+		
+		foreach ($Columns as $cells) {
+			$column[] = $cells[0];
+		}
+		
+		return $column;
+	}
 
-    public function row($query, $params = null, $fetchmode = self::FETCH_ASSOC) {
-        $this->Init($query, $params);
-        $result = $this->sQuery->fetch($fetchmode);
-        $this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued,
-        return $result;
-    }
+	public function row($query, $params = null, $fetchmode = self::FETCH_ASSOC) {
+		$this->Init($query, $params);
+		$result = $this->sQuery->fetch($fetchmode);
+		$this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued,
+		return $result;
+	}
 
-    public function single($query, $params = null) {
-        $this->Init($query, $params);
-        $result = $this->sQuery->fetchColumn();
-        $this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
-        return $result;
-    }
-    public function direct($query, $params = null) {
-        try {
-            $this->Init($query, $params);
-            $result = $this->sQuery->fetchColumn();
-            $this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
-            return $result;
-        } catch (\PDOException $err) {
-            echo "Duplicado";
-        }
-    }
+	public function single($query, $params = null) {
+		$this->Init($query, $params);
+		$result = $this->sQuery->fetchColumn();
+		$this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
+		return $result;
+	}
+	
+	public function direct($query, $params = null) {
+		try {
+			$this->Init($query, $params);
+			$result = $this->sQuery->fetchColumn();
+			$this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
+			return $result;
+		} catch (\PDOException $err) {
+			echo "Duplicado";
+		}
+	}
 }

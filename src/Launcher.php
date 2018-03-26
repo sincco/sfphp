@@ -28,9 +28,6 @@ final class Launcher extends \stdClass {
 		if(isset($_config['timezone']))
 			date_default_timezone_set($_config['timezone']);
 
-		Debug::path(PATH_LOGS);
-		Debug::reporting(DEV_SHOWERRORS);
-
 		Plugger::dispatchGlobal('pre', 'ResolveUrl');
 
 		$observer = implode('_', Request::get('path')) . '_' . Request::get('controller') . '_' . Request::get('action');
@@ -45,7 +42,7 @@ final class Launcher extends \stdClass {
 				$segments = Request::get('path');
 				$segments[] = Request::get('controller');
 				$segments[] = Request::get('action');
-				Debug::dump("ERROR :: No es posible lanzar " . implode("->", $segments));
+				throw new \Exception('No es posible lanzar ' . Request::get('controller') . '->' . Request::get('action'), 0);
 			} else {
 				new Response('htmlstatuscode', '404 Not Found');
 			}

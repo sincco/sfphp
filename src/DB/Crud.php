@@ -18,7 +18,7 @@ use Sincco\Tools\Singleton;
 
 class Crud extends \stdClass {
 // PDO
-	protected $connector;
+	protected $_;
 // Query segments
 	private $table 	= NULL;
 	private $where 	= array();
@@ -30,14 +30,21 @@ class Crud extends \stdClass {
 // Actual query
 	private $query 	= NULL;
 
-
+	/* Connect to Database */
 	public function connect($data = array()) {
-		$this->connector =  Singleton::get( 'Sincco\Sfphp\DB\DataManager', $data, $data[ 'dbname' ] );
+		$this->_ =  Singleton::get( 'Sincco\Sfphp\DB\DataManager', ['connectionData'=>$data], $data[ 'dbname' ] );
+		$this->init();
 	}
 
-	public function __call( $name, $args ) {
-		array_unshift( $args, $name );
-		return call_user_func_array( array( $this, 'table' ), $args );
+	/* Define main table */
+	public function __get( $name ) {
+		$this->init();
+		return call_user_func_array( array( $this, 'table' ), [$name] );
+	}
+
+	/* Return Query String */
+	public function __toString() {
+		return $this->generateSql();
 	}
 
 	public function init() {
@@ -64,7 +71,7 @@ class Crud extends \stdClass {
 		} else {
 			$query = 'INSERT INTO ' . $this->table . ' (' . $campos . ') VALUES (' . $variables . ')';
 		}
-		return $this->connector->query($query, $data);
+		return $this->_->query($query, $data);
 	}
 
 	public function update($set,$where,$table=false) {
@@ -82,7 +89,7 @@ class Crud extends \stdClass {
 		$query = 'UPDATE ' . $table . ' 
 			SET ' . $campos . ' WHERE ' . $condicion;
 		$parametros = array_merge($set, $where);
-		return $this->connector->query($query, $parametros);
+		return $this->_->query($query, $parametros);
 	}
 
 	public function table( $name ) {
@@ -120,7 +127,7 @@ class Crud extends \stdClass {
 			}
 		}
 		$this->generateSql();
-		$data = $this->connector->query( $this->query, $params );
+		$data = $this->_->query( $this->query, $params );
 		$result = array();
 		foreach ( $data as $row ) {
 			$object = new \stdClass();
@@ -140,7 +147,7 @@ class Crud extends \stdClass {
 			}
 		}
 		$this->generateSql();
-		return $this->connector->query( $this->query, $params );
+		return $this->_->query( $this->query, $params );
 	}
 
 	/**
