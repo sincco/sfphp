@@ -14,15 +14,7 @@
 
 namespace Sincco\Sfphp\Abstracts;
 
-abstract class Helper extends \stdClass {
+abstract class Helper extends \Sincco\Sfphp\Abstracts\Generic
+{
 
-	public function getModel( $model ) {
-		$path = explode( '\\', $model );
-		array_push( $path, $path[( count( $path ) - 1 )] );
-		$path[count( $path ) - 2] = 'Models';
-		include_once( PATH_ROOT . '/app/' . implode( '/', $path ) . '.php' );
-		$class = $path[count( $path ) - 1]."Model";
-		return new $class();
-	}
-	
 }

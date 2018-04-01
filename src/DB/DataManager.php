@@ -54,16 +54,10 @@ class DataManager extends Connector {
 					$this->sQuery->bindValue($value[0], $value[1], $type);
 				}
 			}
-			
 			$this->sQuery->execute();
 		} catch (\PDOException $err) {
-			$errorInfo = sprintf( '%s: %s in %s on line %s.',
-				'Database Error',
-				$err,
-				$err->getFile(),
-				$err->getLine()
-			);
-			throw new \Exception($errorInfo, 0);
+			Logger::error('Base de Datos', [$err, $err, $err->getFile(), $err->getLine()]);
+			return false;
 		}
 		
 		$this->parameters = array();
@@ -90,7 +84,7 @@ class DataManager extends Connector {
 		$cache = new Cache($adapter);
 		$rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
 		$statement = strtolower($rawStatement[0]);
-		if (!defined('DEV_CACHE')) {
+		if (DEV_CACHE) {
 			if (!is_null($cache->get($this->connectionData['type'].$idQuery))) {
 				$reponse = $cache->get($this->connectionData['type'].$idQuery);
 			}
@@ -113,7 +107,7 @@ class DataManager extends Connector {
 					break;
 			}
 		}
-		if (!defined('DEV_CACHE')) {
+		if (DEV_CACHE) {
 			$cache->set($this->connectionData['type'].$idQuery, $response);
 		}
 		return $response;
@@ -169,7 +163,7 @@ class DataManager extends Connector {
 			$this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
 			return $result;
 		} catch (\PDOException $err) {
-			echo "Duplicado";
+			Logger::error('Base de Datos', [$err, $err, $err->getFile(), $err->getLine()]);
 		}
 	}
 }

@@ -12,12 +12,12 @@
 
 namespace Sincco\Sfphp;
 
-use Sincco\Sfphp\Cli;
-use Sincco\Tools\Singleton;
-use Sincco\Sfphp\Config\Writer;
-use Sincco\Sfphp\Config\Reader;
+use Sincco\Sfphp\ClassLoader;
 use Sincco\Sfphp\Crypt;
 use Sincco\Sfphp\DB\DataManager;
+use Sincco\Sfphp\Config\Writer;
+use Sincco\Sfphp\Config\Reader;
+use Sincco\Tools\Singleton;
 
 use League\CLImate\CLImate;
 use Composer\Factory;
@@ -28,45 +28,49 @@ use Symfony\Component\Console\Input\ArrayInput;
 final class Console extends \stdClass {
 
 	public function run($argv) {
-		$_SERVER['REQUEST_METHOD'] = 'cli';
-
 		Paths::init();
 		Reader::get('app');
 
 		array_shift($argv);
 		$arguments = $argv;
+		$command = array_shift($arguments);
 
 		// It's a petition for an URL registered on system
-		if(count($arguments) == 1 AND strtolower(trim($arguments[0])) != 'help'){
-			new Cli('/' . $arguments[0]);
-			return;
+		$_SERVER['SERVER_SOFTWARE'] = '';
+		$_SERVER['REQUEST_METHOD'] = 'cli';
+		$_config = Reader::get('app');
+		if(isset($_config['timezone'])) {
+			date_default_timezone_set($_config['timezone']);
+		}
+		
+		$params = [];
+		foreach ($arguments as $_param) {
+			$param = explode('=', $_param);
+			$params[$param[0]] = $param[1];
 		}
 
-		try {
-			// If it's an internal function on this script
-			$command = array_shift($argv);
-			$action = array_shift($argv);
-			$params = $argv;
-
-			// Check if its an function registered on this script
-			// if not launc the cli interface of framework
-			if(is_callable(array($this,$command . '_' . $action))) {
-				$params = [];
-				$ref = new \ReflectionMethod($this,$command . '_' . $action);
-				$int = 0;
-				foreach ($ref->getParameters() as $key => $value) {
-					$int++;
-				 	$cli = new CLImate;
-				 	$input = $cli->input($value->name . '?');
-				 	$params[]= $input->prompt();
-				}
-				call_user_func_array(array($this,$command . '_' . $action), $params);
+		// Internal Functions
+		if(is_callable(array($this,str_replace(':', '_', $command)))) {
+			$params = [];
+			$ref = new \ReflectionMethod($this,str_replace(':', '_', $command));
+			$int = 0;
+			foreach ($ref->getParameters() as $key => $value) {
+				$int++;
+			 	$cli = new CLImate;
+			 	$input = $cli->input($value->name . '?');
+			 	$params[]= $input->prompt();
+			}
+			call_user_func_array(array($this,str_replace(':', '_', $command)), $params);
+		}
+		else {
+			$command = explode(':', ucfirst($command));
+			$objClass = ClassLoader::load([], $command[0], 'Command');
+			if(is_callable(array($objClass, $command[1]))) {
+				call_user_func_array(array($objClass, $command[1]), $params);
 			}
 			else {
-				throw new \Exception('No existe el comando especificado. [help] para ayuda', 0);
+				throw new \Exception('No es posible lanzar ' . $command[0] . '->' . $command[1], 0);
 			}
-		}catch (\Exception $err) {
-			errorException(new \ErrorException($err, 0, 0, $err->getFile(), $err->getLine()));
 		}
 	}
 

@@ -16,19 +16,14 @@ namespace Sincco\Sfphp\Abstracts;
 
 use Sincco\Sfphp\Request;
 use Sincco\Sfphp\Response;
-use Sincco\Tools\Singleton;
+use Sincco\Tools\Tokenizer;
 
-abstract class Controller extends \Sincco\Sfphp\Abstracts\Generic
+abstract class Api extends \Sincco\Sfphp\Abstracts\Generic
 {
 
-	public function newView($view)
+	public function getRequest($key = '')
 	{
-		return Singleton::get('Sincco\Sfphp\Abstracts\View', $view, $view);
-	}
-
-	public function getRequest()
-	{
-		return Request::get();
+		return Request::get($key);
 	}
 
 	public function response($type, $data)
@@ -36,4 +31,11 @@ abstract class Controller extends \Sincco\Sfphp\Abstracts\Generic
 		new Response($type, $data);
 	}
 
+	public function createToken($data, $password = APP_KEY, $duration = 3) {
+		return Tokenizer::create($data, $password, $duration);
+	}
+
+	public function validateToken($data, $password = APP_KEY) {
+		return Tokenizer::validate($data, $password);
+	}
 }

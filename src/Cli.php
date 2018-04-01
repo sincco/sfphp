@@ -16,6 +16,7 @@ namespace Sincco\Sfphp;
 
 use Sincco\Sfphp\Console;
 use Sincco\Sfphp\Request;
+use Sincco\Sfphp\ClassLoader;
 use Sincco\Sfphp\Config\Reader;
 
 final class Cli extends \stdClass {
@@ -39,7 +40,7 @@ final class Cli extends \stdClass {
 			date_default_timezone_set($_config['timezone']);
 		}
 
-		$objClass = ClassLoader::load(Request::get('path'), Request::get('controller'));
+		$objClass = ClassLoader::load('Commands', Request::get('controller'), 'Command');
 		if(is_callable(array($objClass, Request::get('action')))) {
 			call_user_func(array($objClass, Request::get('action')));
 		}

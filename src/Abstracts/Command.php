@@ -14,26 +14,18 @@
 
 namespace Sincco\Sfphp\Abstracts;
 
-use Sincco\Sfphp\Request;
-use Sincco\Sfphp\Response;
-use Sincco\Tools\Singleton;
+use League\CLImate\CLImate;
 
-abstract class Controller extends \Sincco\Sfphp\Abstracts\Generic
+abstract class Command extends \Sincco\Sfphp\Abstracts\Generic
 {
 
-	public function newView($view)
-	{
-		return Singleton::get('Sincco\Sfphp\Abstracts\View', $view, $view);
+	public function red($data) {
+		$climate = new CLImate;
+		$climate->lightRed($data);
 	}
 
-	public function getRequest()
-	{
-		return Request::get();
+	public function green($data) {
+		$climate = new CLImate;
+		$climate->lightGreen($data);
 	}
-
-	public function response($type, $data)
-	{
-		new Response($type, $data);
-	}
-
 }

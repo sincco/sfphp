@@ -48,10 +48,12 @@ final class Logger extends \stdClass
 			self::$instance = new self();
 		}
 		self::$instance->error->error($message, $params);
-		if ($_SERVER['REQUEST_METHOD'] == 'cli') {
-			self::console($message, $params);
-		} else {
-			self::html($message, $params);
+		if (DEV_SHOWERRORS) {
+			if ($_SERVER['REQUEST_METHOD'] == 'cli') {
+				self::console($message, $params);
+			} else {
+				self::html($message, $params);
+			}
 		}
 	}
 

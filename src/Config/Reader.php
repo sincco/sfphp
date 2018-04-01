@@ -91,6 +91,9 @@ final class Reader extends \stdClass {
 					define(strtoupper("session_".$key),$value);
 			}
 		}
+		if(!defined("DEV_CACHE")) {
+			define("DEV_CACHE",false);
+		}
 	}
 
 	private static function xml2array($xml) {
