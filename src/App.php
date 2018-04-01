@@ -14,7 +14,6 @@ namespace Sincco\Sfphp;
 
 use Sincco\Sfphp\Launcher;
 use Sincco\Sfphp\Logger;
-use Sincco\Sfphp\Messages;
 use Sincco\Sfphp\Paths;
 use Sincco\Sfphp\Session;
 use Sincco\Sfphp\Translations;
@@ -28,7 +27,6 @@ final class App extends \stdClass
 		Logger::register();
 		try {
 			Paths::init();
-			Messages::init();
 			if (is_null(Reader::get('app'))) {
 				throw new \Exception('No existe el archivo de configuración', 0);
 			}

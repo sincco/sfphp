@@ -32,7 +32,7 @@ final class Translations extends \stdClass {
 			foreach ($available as $locale) {
 				$data = file(PATH_LOCALE . '/' . $locale);
 				foreach ($data as $_trans) {
-					$translations[basename($locale, ".dat")][] = explode('|', $_trans);
+					$translations[basename($locale, ".csv")][] = str_getcsv($_trans);
 				}
 			}
 			$this->cache->set('translations', $translations, 8640000);
@@ -53,9 +53,9 @@ final class Translations extends \stdClass {
 					 break;
 				}
 			}
-			if (trim($response) == '') {
-				$response = $text;
-			}
+		}
+		if (trim($response) == '') {
+			$response = $text;
 		}
 		return $response;
 	}

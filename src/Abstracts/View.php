@@ -15,7 +15,6 @@
 namespace Sincco\Sfphp\Abstracts;
 
 use Sincco\Sfphp\Session;
-use Sincco\Sfphp\Messages;
 use Sincco\Sfphp\Translations;
 use Sincco\Tools\Tokenizer;
 use Sincco\Sfphp\Request;
@@ -45,11 +44,9 @@ final class View extends \stdClass {
 	{
 		$_parsed = $params;
 		$params['_session'] = $_SESSION;
-		$params['__messages'] = [];
 		foreach (get_object_vars($this) as $key => $value) {
 			$params[$key] = $value;
 		}
-		$params['__messages'] = Messages::get();
 		echo $this->template->render($this->file, $params);
 	}
 

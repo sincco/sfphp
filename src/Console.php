@@ -30,6 +30,7 @@ final class Console extends \stdClass {
 	public function run($argv) {
 		Paths::init();
 		Reader::get('app');
+		Translations::init();
 
 		array_shift($argv);
 		$arguments = $argv;

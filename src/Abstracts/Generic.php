@@ -21,13 +21,6 @@ use Sincco\Sfphp\Request;
 
 abstract class Generic
 {
-	public function __($text){
-		$translate = $text;
-		if (defined('APP_TRANSLATE')) {
-			$translate = Translations::get($translate, APP_TRANSLATE);
-		}
-	}
-
 	public function getModel($model)
 	{
 		$path = explode('\\', $model);
