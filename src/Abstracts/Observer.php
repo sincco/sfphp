@@ -17,29 +17,9 @@ namespace Sincco\Sfphp\Abstracts;
 use Sincco\Sfphp\Request;
 use Sincco\Tools\Singleton;
 
-abstract class Observer {
-
-	public function getModel( $model ) {
-		$path = explode( '\\', $model );
-		array_push( $path, $path[( count( $path ) - 1 )] );
-		$path[count( $path ) - 2] = 'Models';
-		include_once( PATH_ROOT . '/app/' . implode( '/', $path ) . '.php' );
-		$class = $path[count( $path ) - 1]."Model";
-		return Singleton::get( $class );
-	}
-
-	public function helper( $helper ) {
-		include_once( PATH_ROOT . '/app/Helpers/' . $helper . '.php' );
-		$class = $helper . "Helper";
-		return Singleton::get( $class );
-	}
-
-	public function getParams( $param = '' ) {
-		return Request::getParams( $param );
-	}
-
-	public function getRequest() {
-		return Request::getInstance();
-	}
+/**
+ * Permite definir observadores en el flujo del proceso del sistema
+ */
+abstract class Observer extends \Sincco\Sfphp\Abstracts\Generic {
 
 }

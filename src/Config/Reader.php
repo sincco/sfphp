@@ -17,10 +17,16 @@ namespace Sincco\Sfphp\Config;
 use Desarrolla2\Cache\Cache;
 use Desarrolla2\Cache\Adapter\File;
 
+/**
+ * Lee un archivo de configuracion
+ */
 final class Reader extends \stdClass {
 	private static $instance;
 	private $cache;
 
+	/**
+	 * Crea el lector
+	 */
 	private function __construct() {
 		$adapter = new File(PATH_CACHE);
 		$adapter->setOption('ttl', 86400);
@@ -40,11 +46,20 @@ final class Reader extends \stdClass {
 		}
 	}
 
+	/**
+	 * Limpia el objeto de lectura
+	 * @return none
+	 */
 	public static function restart() {
 		self::$instance = NULL;
 
 	}
 
+	/**
+	 * Obtiene un segmento de la configuracion
+	 * @param  string $atributo Seccion a buscar
+	 * @return mixed           Valor o valores
+	 */
 	public static function get($atributo = '') {
 		if (!self::$instance instanceof self) {
 			self::$instance = new self();

@@ -14,6 +14,10 @@
 
 namespace Sincco\Sfphp\Abstracts;
 
+/**
+ * Permite crear clases no dependientes del flujo, para operaciones
+ * especificas como librerias adicionales
+ */
 abstract class Helper extends \Sincco\Sfphp\Abstracts\Generic
 {
 

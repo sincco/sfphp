@@ -17,10 +17,20 @@ namespace Sincco\Sfphp\Config;
 use Desarrolla2\Cache\Cache;
 use Desarrolla2\Cache\Adapter\File;
 
+/**
+ * Escribe un archivo de configuracion
+ */
 final class Writer extends \stdClass {
 	private static $instance;
 
-	public static function write ($arreglo, $root, $archivo) {
+	/**
+	 * Escribe los datos
+	 * @param  array  $arreglo Datos a escribir
+	 * @param  string $root    Elemento padre
+	 * @param  string $archivo Archivo a guardar
+	 * @return object          Estructura XML
+	 */
+	public static function write ($arreglo=[], $root='', $archivo='') {
 		if(!self::$instance instanceof self)
 			self::$instance = new self();
 		$_xml = new \SimpleXMLElement("<?xml version=\"1.0\"?><".$root."></".$root.">");

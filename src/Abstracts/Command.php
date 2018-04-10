@@ -16,14 +16,27 @@ namespace Sincco\Sfphp\Abstracts;
 
 use League\CLImate\CLImate;
 
+/**
+ * Clase abstracta para el manejo de comandos de consola
+ */
 abstract class Command extends \Sincco\Sfphp\Abstracts\Generic
 {
 
+	/**
+	 * Imprime un mensaje de error en la consola
+	 * @param  string $data Mensaje
+	 * @return none
+	 */
 	public function red($data) {
 		$climate = new CLImate;
 		$climate->lightRed($data);
 	}
 
+	/**
+	 * Imprime un mensaje de correcto en la consola
+	 * @param  string $data Mensaje
+	 * @return none
+	 */
 	public function green($data) {
 		$climate = new CLImate;
 		$climate->lightGreen($data);

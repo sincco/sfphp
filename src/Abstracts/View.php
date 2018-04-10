@@ -21,11 +21,18 @@ use Sincco\Sfphp\Request;
 use Desarrolla2\Cache\Cache;
 use Desarrolla2\Cache\Adapter\File;
 
+/**
+ * Control de vistas en el sistema
+ */
 final class View extends \stdClass {
 	private $file;
 	private $template;
 	
-	public function __construct($file)
+	/**
+	 * Crea la vista
+	 * @param string $file Archivo a cargar
+	 */
+	public function __construct($file='')
 	{
 		$path = explode('\\', $file);
 		array_push($path, $path[(count($path) - 1)]);
@@ -39,26 +46,35 @@ final class View extends \stdClass {
 		$this->_twigFunctions();
 	}
 
-
+	/**
+	 * Envía a navegador el resultado de una vista procesada
+	 * @param  array  $params Parametros que forman parte del proceso de la vista
+	 * @return none
+	 */
 	public function render($params = array())
+	{
+		echo $this->getContent($params);
+	}
+
+	/**
+	 * Crea el contenido de una vista
+	 * @param  array  $params Parametros que forman parte del proceso
+	 * @return string         Contenido HTML de la vista
+	 */
+	public function getContent($params = array())
 	{
 		$_parsed = $params;
 		$params['_session'] = $_SESSION;
 		foreach (get_object_vars($this) as $key => $value) {
 			$params[$key] = $value;
 		}
-		echo $this->template->render($this->file, $params);
-	}
-
-	public function getContent($params = array())
-	{
-		$_parsed = $params;
-		foreach (get_object_vars($this) as $key => $value) {
-			$params[$key] = $value;
-		}
 		return $this->template->render($this->file, $params);
 	}
 
+	/**
+	 * Define las funciones a usar en las plantillas
+	 * @return none
+	 */
 	private function _twigFunctions() 
 	{
 		$function = new \Twig_SimpleFunction('__', function ($text) {
@@ -87,6 +103,11 @@ final class View extends \stdClass {
 		$this->template->addFunction($function);
 	}
 
+	/**
+	 * Traducciones
+	 * @param  string $text Cadena a traducir
+	 * @return string       Cadena traducida
+	 */
 	private function _translate($text)
 	{
 		$translate = $text;
@@ -96,46 +117,61 @@ final class View extends \stdClass {
 		return $translate;
 	}
 
-	private function _token($type)
+	/**
+	 * Crea un token generico
+	 * @return string 	Cadena de token
+	 */
+	private function _token()
 	{
-		if ($type == 'Generic') {
-			$adapter = new File(PATH_CACHE);
-			$adapter->setOption('ttl', 10800);
-			$cache = new Cache($adapter);
-			$token = $cache->get('token');
-			if(is_null($token)) {
-				$token = Tokenizer::create(['GENERIC_API'=>true], APP_KEY, 180);
-				$cache->set('token', $token, 10800);
-			}
-			return $token;
+		$adapter = new File(PATH_CACHE);
+		$adapter->setOption('ttl', 10800);
+		$cache = new Cache($adapter);
+		$token = $cache->get('token');
+		if(is_null($token)) {
+			$token = Tokenizer::create(['GENERIC_API'=>true], APP_KEY, 180);
+			$cache->set('token', $token, 10800);
 		}
-		if ($type == 'User') {
-			return Session::get('sincco\login\token');
-		}
+		return $token;
 	}
 
+	/**
+	 * Ejecuta la funcion init de cada script asociado a la vista
+	 * @return string Cadena de ejecución de script
+	 */
 	private function _initJS() {
 		$file = $this->file;
 		$file = str_replace("Views/", "", $file);
 		$file = str_replace("/", "_", $file);
 		$file = strtolower($file);
 		$file = str_replace(".html", "", $file);
-		return $file . '.init();';
+		if (file_exists(PATH_ROOT . "/public/js/pages/" . $file . '.js')) {
+			return '<script src="' . BASE_URL . "public/js/pages/" . $file . '.js"></script><script>' . $file . '.init();</script>';
+		} else {
+			return '';
+		}
 	}
 
+	/**
+	 * Carga un script JS asociado a la vista
+	 * @return string Cadena de carga de JS
+	 */
 	private function _loadJS() {
 		$file = $this->file;
 		$file = str_replace("Views/", "", $file);
 		$file = str_replace("/", "_", $file);
 		$file = strtolower($file);
 		$file = str_replace(".html", "", $file);
-		if (file_exists(PATH_ROOT . "public/js/views/" . $file . '.js')) {
-			return BASE_URL . "public/js/views/" . $file . '.js';
+		if (file_exists(PATH_ROOT . "public/js/pages/" . $file . '.js')) {
+			return BASE_URL . "public/js/pages/" . $file . '.js';
 		} else {
 			return "";
 		}
 	}
 
+	/**
+	 * Devuelve la sección de la URL
+	 * @return string Seccion
+	 */
 	private function _urlSection() {
 		$section = implode(" ", Request::get('path'));
 		if (Request::get('controller') != "Index") {
@@ -147,25 +183,13 @@ final class View extends \stdClass {
 		return strtoupper($section);
 	}
 
+	/**
+	 * Obtiene una url absoluta en base a una relativa
+	 * @param  strinf $url URL relativa
+	 * @return string      URL absoluta
+	 */
 	private function _getUrl($url) {
 		return BASE_URL . $url;
 	}
 
-	private function grid($data, $selection=false)
-	{
-		$_html = '<table data-toggle="table" data-search="true" data-show-export="true" data-page-size="20" data-pagination="true" data-show-pagination-switch="true" data-show-columns="true" data-mobile-responsive="true" data-sortable="true"><thead><tr>';
-		foreach (array_keys($data) as $col) {
-			$_html .= '<th data-sortable="true">' . $col . '</th>';
-		}
-		$_html .= '</tr></thead><tbody>';
-		foreach ($data as $row) {
-			$_html .= '<tr>';
-			foreach ($row as $value) {
-				$_html .= '<td>' . $value . '</td>';
-			}
-			$_html .= '</tr>';
-		}
-		$_html .= '</tr></tbody></table>';
-		return $_html;
-	}
 }

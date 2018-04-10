@@ -30,23 +30,38 @@ class Crud extends \stdClass {
 // Actual query
 	private $query 	= NULL;
 
-	/* Connect to Database */
+	/**
+	 * Conecta con una base de datos
+	 * @param  array  $data Datos de conexion
+	 * @return none
+	 */
 	public function connect($data = array()) {
 		$this->_ =  Singleton::get( 'Sincco\Sfphp\DB\DataManager', ['connectionData'=>$data], $data[ 'dbname' ] );
 		$this->init();
 	}
 
-	/* Define main table */
+	/**
+	 * Tabla principal
+	 * @param  string $name Tabla
+	 * @return object       Tabla
+	 */
 	public function __get( $name ) {
 		$this->init();
 		return call_user_func_array( array( $this, 'table' ), [$name] );
 	}
 
-	/* Return Query String */
+	/**
+	 * Query armado
+	 * @return string Query SQL
+	 */
 	public function __toString() {
 		return $this->generateSql();
 	}
 
+	/**
+	 * Reinicia el objeto
+	 * @return object Crud
+	 */
 	public function init() {
 		$this->where 	= array();
 		$this->joins	= array();
@@ -57,7 +72,12 @@ class Crud extends \stdClass {
 		return $this;
 	}
 
-	public function insert($data, $tabla=false) {
+	/**
+	 * Hace un instert en la tabla principal
+	 * @param  array  $data  Datos a insertar
+	 * @return int         Id insertado (si existe autonumerico)
+	 */
+	public function insert($data) {
 		$campos = [];
 		$variables = [];
 		foreach ($data as $campo => $valor){
@@ -66,18 +86,17 @@ class Crud extends \stdClass {
 		}
 		$campos		= implode(",", $campos);
 		$variables	= implode(",", $variables);
-		if ($tabla) {
-			$query = 'INSERT INTO ' . $tabla . ' (' . $campos . ') VALUES (' . $variables . ')';
-		} else {
-			$query = 'INSERT INTO ' . $this->table . ' (' . $campos . ') VALUES (' . $variables . ')';
-		}
+		$query = 'INSERT INTO ' . $this->table . ' (' . $campos . ') VALUES (' . $variables . ')';
 		return $this->_->query($query, $data);
 	}
 
-	public function update($set,$where,$table=false) {
-		if (!$table) {
-			$table = $this->table;
-		}
+	/**
+	 * Ejecuta un update en la tabla principal
+	 * @param  array  $set   Campos a actualizar
+	 * @param  array  $where Campos de condicion
+	 * @return int         Respuesta
+	 */
+	public function update($set,$where) {
 		$campos = [];
 		$condicion = [];
 		foreach ($set as $campo => $valor)
@@ -86,7 +105,7 @@ class Crud extends \stdClass {
 			$condicion[] = $campo . "=:" . $campo;
 		$campos = implode(",", $campos);
 		$condicion = implode(" AND ", $condicion);
-		$query = 'UPDATE ' . $table . ' 
+		$query = 'UPDATE ' . $this->table . ' 
 			SET ' . $campos . ' WHERE ' . $condicion;
 		$parametros = array_merge($set, $where);
 		return $this->_->query($query, $parametros);
@@ -108,31 +127,41 @@ class Crud extends \stdClass {
 		return $this;
 	}
 
+	/**
+	 * Crea una sentencia WHERE
+	 * @param  array $fields    Campos
+	 * @param  array $values    Valores
+	 * @param  string $logical   Comparacion logica
+	 * @param  string $table     Sobreescribe tabla principal
+	 * @param  string $condition Condicion logica AND|ORD
+	 * @return object            CRUD
+	 */
 	public function where( $fields, $values, $logical = ' = ', $table = 'maintable', $condition = ' AND ' ) {
 		array_push( $this->where, serialize( array( $fields, $values, $table, ' ' . $logical . ' ', $condition ) ) );
 		array_push( $this->params, array( 'where' . $fields=>$values ) );
 		return $this;
 	}
 
+	/**
+	 * Crea una senhtencia ORDER
+	 * @param  array $fields Campos
+	 * @param  string $order  Orden
+	 * @return object         CRUD
+	 */
 	public function order( $fields, $order = ' ASC ' ) {
 		array_push( $this->order, serialize( array( $fields, $order ) ) );
 		return $this;
 	}
 
+	/**
+	 * Devuelve los datos en modo objeto
+	 * @param  string $query  Sobreescribe el query
+	 * @param  array  $params Parametros a parsear en el query
+	 * @return object         Datos
+	 */
 	public function getCollection($query=NULL, $params=[]) {
-		if (!is_null($query)) {
-			$data = $this->_->query( $query, $params );
-		} else {
-			$params = array();
-			foreach ( $this->params as $param ) {
-				foreach ( $param as $key => $value ) {
-					$params[ $key ] = $value;
-				}
-			}
-			$this->generateSql();
-			$data = $this->_->query( $this->query, $params );
-		}
-		$result = array();
+		$data = $this->getData($query,$params);
+		$result = [];
 		foreach ( $data as $row ) {
 			$object = new \stdClass();
 			foreach ( $row as $key => $value ) {
@@ -143,6 +172,12 @@ class Crud extends \stdClass {
 		return $result;
 	}
 
+	/**
+	 * Devuelve los datos en modo array
+	 * @param  string $query  Sobreescribe el query
+	 * @param  array  $params Parametros a parsear en el query
+	 * @return array         Datos
+	 */
 	public function getData($query=NULL, $params=[]) {
 		if (!is_null($query)) {
 			return $this->_->query( $query, $params );
@@ -156,6 +191,21 @@ class Crud extends \stdClass {
 			$this->generateSql();
 			return $this->_->query( $this->query, $params );
 		}
+	}
+
+	/**
+	 * Devuelve los datos en modo array sin campos
+	 * @param  string $query  Sobreescribe el query
+	 * @param  array  $params Parametros a parsear en el query
+	 * @return array         Datos
+	 */
+	public function getSimpleData($query=NULL, $params=[]) {
+		$data = $this->getData($query,$params);
+		$simple = [];
+		foreach ($data as $row) {
+			$simple[] = array_values($row);
+		}
+		return $simple;
 	}
 
 	/**

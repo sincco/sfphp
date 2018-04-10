@@ -21,19 +21,14 @@ use Sincco\Tools\Singleton;
 abstract class Controller extends \Sincco\Sfphp\Abstracts\Generic
 {
 
+	/**
+	 * Invoca a una nueva vista
+	 * @param  text $view Nombre de la vista
+	 * @return \Sincco\Sfphp\Abstracts\View       Vista devuelta
+	 */
 	public function newView($view)
 	{
 		return Singleton::get('Sincco\Sfphp\Abstracts\View', $view, $view);
-	}
-
-	public function getRequest()
-	{
-		return Request::get();
-	}
-
-	public function response($type, $data)
-	{
-		new Response($type, $data);
 	}
 
 }

@@ -14,13 +14,22 @@
 
 namespace Sincco\Sfphp;
 
+/**
+ * Clase para respuesta de estatus HTML al navegador
+ */
 final class Response extends \stdClass {
 
-	public function __construct($type, $data) {
+	/**
+	 * Crea la respuesta
+	 * @param string $type Tipo de respuesta
+	 * @param mixed $data Datos que forman parte de la respuesta
+	 */
+	public function __construct($type='json', $data) {
 		switch ( strtolower( $type ) ) {
 			case 'json':
-				if( gettype( $data ) == "array" )
+				if( gettype( $data ) == "array" ) {
 					$data = $this->UTF8Parser( $data );
+				}
 				$header = 'Content-Type: application/json';
 				$data = json_encode( $data );
 				break;
@@ -34,6 +43,10 @@ final class Response extends \stdClass {
 		echo $data;
 	}
 
+	/**
+	 * Parseo de arreglo en formato UTF8
+	 * @param array $array Arreglo a formatear
+	 */
 	public static function UTF8Parser( $array ) {
 		array_walk_recursive( $array, function( &$item, $key ){
 			if(!mb_detect_encoding( $item, 'utf-8', true ))

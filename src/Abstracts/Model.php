@@ -17,8 +17,15 @@ namespace Sincco\Sfphp\Abstracts;
 use Sincco\Sfphp\Config\Reader;
 use Sincco\Sfphp\Crypt;
 
+/**
+ * Define un modelo con conexion a base de datos
+ */
 abstract class Model extends \Sincco\Sfphp\DB\Crud {
 	
+	/**
+	 * Constructor
+	 * @param string $dataBase Conecta a el modelo a una base de datos en específico
+	 */
 	public function __construct( $dataBase = NULL ) {
 		if ( is_null( $dataBase ) ) {
 			$dataBase = 'default';

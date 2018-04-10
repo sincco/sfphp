@@ -19,13 +19,13 @@ use Sincco\sfphp\Logger;
 
 final class ClassLoader extends \stdClass {
 
-	public static function load($path, $class, $type = 'Controller') {
+	public static function load($path, $clase, $type = 'Controller') {
 		try{
-			$_path = implode('/', $path) . '/' . $type . 's/' . $class;
+			$_path = implode('/', $path) . '/' . $type . 's/' . $clase;
 			if (file_exists(PATH_ROOT.'/app/'.$_path.'.php')) {
 				require_once(PATH_ROOT.'/app/'.$_path.'.php');
-				$class .= $type;
-				return new $class();
+				$clase .= $type;
+				return new $clase();
 			} else {
 				return new \stdClass();
 			}
