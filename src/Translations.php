@@ -26,7 +26,7 @@ final class Translations extends \stdClass {
 		$adapter = new File(PATH_CACHE);
 		$adapter->setOption('ttl', 8640000);
 		$this->cache = new Cache($adapter);
-		if(is_null($this->cache->get('translations'))) {
+		if(is_null($this->cache->get('trn'))) {
 			$translations = [];
 			$available = array_slice(scandir(PATH_LOCALE),2);
 			foreach ($available as $locale) {
@@ -35,7 +35,7 @@ final class Translations extends \stdClass {
 					$translations[basename($locale, ".csv")][] = str_getcsv($_trans);
 				}
 			}
-			$this->cache->set('translations', $translations, 8640000);
+			$this->cache->set('trn', $translations, 8640000);
 		}
 	}
 
@@ -43,7 +43,7 @@ final class Translations extends \stdClass {
 	{
 		if(!self::$instance instanceof self)
 			self::$instance = new self();
-		$translations = self::$instance->cache->get('translations');
+		$translations = self::$instance->cache->get('trn');
 		$response = '';
 		if (isset($translations[$locale])) {
 			$translation = $translations[$locale];

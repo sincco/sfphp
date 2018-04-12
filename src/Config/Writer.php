@@ -38,7 +38,7 @@ final class Writer extends \stdClass {
 		$adapter = new File(PATH_CACHE);
 		$adapter->setOption('ttl', 86400);
 		$cache = new Cache($adapter);
-		$cache->set('config', $arreglo, 86400);
+		$cache->set('cfg', $arreglo, 86400);
 		return $_xml->asXML($archivo);
 	}
 

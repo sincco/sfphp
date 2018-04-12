@@ -31,7 +31,7 @@ final class Reader extends \stdClass {
 		$adapter = new File(PATH_CACHE);
 		$adapter->setOption('ttl', 86400);
 		$this->cache = new Cache($adapter);
-		if(is_null($this->cache->get('config'))) {
+		if(is_null($this->cache->get('cfg'))) {
 			$file = PATH_CONFIG . "/config.xml";
 			if (file_exists(PATH_CONFIG . "/config_local.xml")) {
 				$file = PATH_CONFIG . "/config_local.xml";
@@ -41,7 +41,7 @@ final class Reader extends \stdClass {
 				$_config = array();
 			} else {
 				$_config = self::xml2array(new \SimpleXMLElement(file_get_contents($file)));
-				$this->cache->set('config', $_config, 86400);
+				$this->cache->set('cfg', $_config, 86400);
 			}
 		}
 	}
@@ -64,7 +64,7 @@ final class Reader extends \stdClass {
 		if (!self::$instance instanceof self) {
 			self::$instance = new self();
 		}
-		$_config = self::$instance->cache->get('config');
+		$_config = self::$instance->cache->get('cfg');
 		self::defineConstants($_config);
 		if (strlen(trim($atributo))) {
 			if (isset($_config[$atributo])) {
