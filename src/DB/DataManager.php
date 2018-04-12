@@ -85,8 +85,8 @@ class DataManager extends Connector {
 		$rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
 		$statement = strtolower($rawStatement[0]);
 		if (DEV_CACHE) {
-			if (!is_null($cache->get($this->connectionData['type'].$idQuery))) {
-				$reponse = $cache->get($this->connectionData['type'].$idQuery);
+			if (!is_null($cache->get('qry_' . $this->connectionData['type'].$idQuery))) {
+				$reponse = $cache->get('qry_' . $this->connectionData['type'].$idQuery);
 			}
 		}
 		if (!$response) {
@@ -108,7 +108,7 @@ class DataManager extends Connector {
 			}
 		}
 		if (DEV_CACHE) {
-			$cache->set($this->connectionData['type'].$idQuery, $response);
+			$cache->set('qry_' . $this->connectionData['type'].$idQuery, $response);
 		}
 		return $response;
 	}
