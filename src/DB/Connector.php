@@ -20,6 +20,9 @@ class Connector extends \PDO {
 
 	public function __construct($connectionData) {
 		$connection = NULL;
+		if (isset($connectionData['connectionData'])) {
+			$connectionData = $connectionData['connectionData'];
+		}
 		if (!isset($connectionData["charset"])) {
 			$connectionData["charset"] = "utf8";
 		}
