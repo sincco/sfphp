@@ -49,20 +49,22 @@ final class Request extends \stdClass {
 			if (function_exists('getallheaders')) {
 				$headers = getallheaders();
 			}
-			if(isset($headers['Authorization'])){
+			if (isset($headers['Authorization'])){
 				$this->data['authorization'] = $headers['Authorization'];
 			}
-			if(isset($headers['x-access-token'])){
+			if (isset($headers['x-access-token'])){
 				$this->data['authorization'] = $headers['x-access-token'];
 			}
 		}
 
-		if(!isset($_GET['url']))
+		if (!isset($_GET['url'])) {
 			$_GET['url'] = false;
+		}
 		$_url = explode('/', $_GET['url']);
 		
-		if(!strstr($_SERVER['SERVER_SOFTWARE'], 'Apache'))
+		if (!strstr($_SERVER['SERVER_SOFTWARE'], 'Apache')) {
 			array_shift($_url);
+		}
 
 		$_dirs = [];
 		$intDirs = 0;
@@ -87,6 +89,7 @@ final class Request extends \stdClass {
 			$_segments['action'] = 'Index';
 		}
 
+		$this->data['url'] = $_GET['url'];
 		$this->data['controller'] = $_segments['controller'];
 		$this->data['action'] = $_segments['action'];
 		$this->data['path'] = $_dirs;

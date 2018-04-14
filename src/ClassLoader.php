@@ -15,7 +15,6 @@
 namespace Sincco\Sfphp;
 
 use Sincco\Sfphp\ClassLoader;
-use Sincco\sfphp\Logger;
 
 final class ClassLoader extends \stdClass {
 

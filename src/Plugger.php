@@ -16,7 +16,6 @@ namespace Sincco\Sfphp;
 
 use Sincco\Sfphp\Request;
 use Sincco\Sfphp\Config\Reader;
-use Sincco\Tools\Debug;
 
 final class Plugger extends \stdClass {
 
