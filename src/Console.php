@@ -82,7 +82,7 @@ final class Console extends \stdClass {
 			$command = str_replace('help_', 'help', $command);
 			$command = explode('_', $command);
 			if (count($command) > 1){
-				$data[] = ['Comandos'=>implode(' ', $command)];
+				$data[] = ['Comandos'=>implode(':', $command)];
 			}
 		}
 		$cli = new CLImate;
