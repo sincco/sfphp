@@ -41,4 +41,14 @@ abstract class Command extends \Sincco\Sfphp\Abstracts\Generic
 		$climate = new CLImate;
 		$climate->lightGreen($data);
 	}
+
+	/**
+	 * Imprime un mensaje de información en la consola
+	 * @param  string $data Mensaje
+	 * @return none
+	 */
+	public function blue($data) {
+		$climate = new CLImate;
+		$climate->blue($data);
+	}
 }
