@@ -110,7 +110,7 @@ final class Console extends \stdClass {
 			}
 		}
 		$climate->green('Reiniciando configuración de aplicación...');
-		$_llave_encripcion = strtoupper(md5(microtime().rand()));
+		$_llave_encripcion = Crypt::newKey();
 		$bases = [];
 		$_config = [
 			'app' => [

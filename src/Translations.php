@@ -28,12 +28,15 @@ final class Translations extends \stdClass {
 		$this->cache = new Cache($adapter);
 		if(is_null($this->cache->get('trn'))) {
 			$translations = [];
-			$available = array_slice(scandir(PATH_LOCALE),2);
-			foreach ($available as $locale) {
-				$data = file(PATH_LOCALE . '/' . $locale);
-				foreach ($data as $_trans) {
-					$translations[basename($locale, ".csv")][] = str_getcsv($_trans);
+			if (is_dir(PATH_LOCALE)) {
+				$available = array_slice(scandir(PATH_LOCALE),2);
+				foreach ($available as $locale) {
+					$data = file(PATH_LOCALE . '/' . $locale);
+					foreach ($data as $_trans) {
+						$translations[basename($locale, ".csv")][] = str_getcsv($_trans);
+					}
 				}
+				
 			}
 			$this->cache->set('trn', $translations, 8640000);
 		}
