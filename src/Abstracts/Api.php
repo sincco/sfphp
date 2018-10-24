@@ -44,4 +44,25 @@ abstract class Api extends \Sincco\Sfphp\Abstracts\Generic
 	public function validateToken($data='', $password = APP_KEY) {
 		return Tokenizer::validate($data, $password);
 	}
+
+	/**
+	 * Se cubren las condicione de seguridad para acceder a la api
+	 * @return boolean           Respuesta
+	 */
+	public function canAccess() {
+		$data = $this->validateToken($this->getRequest('authorization'));
+		if ($data !== false) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Obtener datos contenidos en el token
+	 * @return array           Respuesta
+	 */
+	public function getToken() {
+		return $this->validateToken($this->getRequest('authorization'));
+	}
 }

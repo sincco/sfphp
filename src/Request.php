@@ -56,7 +56,6 @@ final class Request extends \stdClass {
 				$this->data['authorization'] = $headers['x-access-token'];
 			}
 		}
-
 		if (!isset($_GET['url'])) {
 			$_GET['url'] = false;
 		}
