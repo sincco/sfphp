@@ -58,7 +58,7 @@ final class Launcher extends \stdClass {
 				$segments[] = Request::get('action');
 				throw new \Exception('No es posible lanzar ' . Request::get('controller') . '->' . Request::get('action'), 0);
 			} else {
-				new Response('htmlstatuscode', '404 Not Found');
+				new Response('htmlstatuscode', ERROR404);
 			}
 		}
 	}

@@ -23,6 +23,7 @@ final class Paths extends \stdClass {
 			define('PATH_SESSION', PATH_ROOT . '/var/session');
 			define('PATH_TMP', PATH_ROOT . '/var/tmp');
 			define('PATH_LOCALE', PATH_ROOT . '/etc/locale');
+			define('ERROR404', '<div style="font-size: 165px; font-family: sans-serif; font-weight: bolder; position: relative; left: 50%; margin-left: -25%; color:#2b2b2b;"><h1>4<span style="color: #a0251c;">0</span>4<span style="font-size: 30px;">Not found</span></h1></div>');
 			if (file_exists(PATH_ROOT . '/paths.php')) {
 				require_once PATH_ROOT . '/paths.php';
 			}
