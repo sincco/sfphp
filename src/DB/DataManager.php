@@ -18,7 +18,6 @@ use Sincco\Sfphp\DB\Connector;
 use Sincco\Sfphp\Logger;
 use Desarrolla2\Cache\File;
 
-
 class DataManager extends Connector {
 
 	private $sQuery;
