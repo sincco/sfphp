@@ -30,7 +30,7 @@ abstract class Generic
 	 * @param  string $model Modelo a consumir
 	 * @return object        Modelo
 	 */
-	public function getModel($model='')
+	public function getModel($model='Default')
 	{
 		$path = explode('\\', $model);
 		array_push($path, $path[(count($path) - 1)]);

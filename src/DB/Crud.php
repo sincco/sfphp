@@ -87,6 +87,7 @@ class Crud extends \stdClass {
 		$campos		= implode(",", $campos);
 		$variables	= implode(",", $variables);
 		$query = 'INSERT INTO ' . $this->table . ' (' . $campos . ') VALUES (' . $variables . ')';
+		// var_dump($query, $data);
 		return $this->_->query($query, $data);
 	}
 

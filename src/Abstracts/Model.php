@@ -21,7 +21,6 @@ use Sincco\Sfphp\Crypt;
  * Define un modelo con conexion a base de datos
  */
 abstract class Model extends \Sincco\Sfphp\DB\Crud {
-	
 	/**
 	 * Constructor
 	 * @param string $dataBase Conecta a el modelo a una base de datos en específico

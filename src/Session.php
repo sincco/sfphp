@@ -19,7 +19,7 @@ use \Sincco\Sfphp\Response;
 use \Sincco\Sfphp\Config\Reader;
 
 final class Session extends \stdClass {
-    
+
     protected static $instance;
 
     protected function __construct() {
