@@ -104,15 +104,14 @@ class Crud extends \stdClass {
 			$campos[] = $campo . "=:" . $campo;
 		}
 		foreach ($where as $campo => $valor) {
-			$condicion[] = $campo . "=:where" . $campo;
-			$where['where' . $campo] = $valor;
+			$condicion[] = $campo . "=:" . $campo;
+			$where['' . $campo] = $valor;
 		}
 		$campos = implode(",", $campos);
 		$condicion = implode(" AND ", $condicion);
 		$query = 'UPDATE ' . $this->table . ' 
 			SET ' . $campos . ' WHERE ' . $condicion;
 		$parametros = array_merge($set, $where);
-		var_dump($query,$parametros);
 		return $this->_->query($query, $parametros);
 	}
 
