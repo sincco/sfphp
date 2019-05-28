@@ -89,15 +89,28 @@ Sólo puedes tener una por default (a la que se conectan todos los modelos por d
 
 ### Base de datos
 
-#### CRUD
+#### ORM
 
 ```
-$model->empresas()
-    ->where( 'estatus', 'Activa' )
-    ->where( 'empresa', '01' )
-    ->join( 'usuariosEmpresas usr', 'usr.empresa = maintable.empresa' )
-    ->order( 'razonSocial' );
-Debug::log($model->getCollection());
+$tabla = $this->getModel();
+$tabla->candidatosCabecera('idCandidato');
+$tabla->innerCodigosAcceso(['USING'=>'idCandidato']);
+$tabla->filterIdCandidato([1,2,3]);
+$tabla->fieldsCandidatosCabecera(['idCandidato','paterno','materno','nombre']);
+foreach ($tabla->getCollection() as $registro) {
+    echo "<pre>";var_dump($registro->idCandidato, $registro->idCodigo, $registro->codigo);echo "</pre>";
+    $registro->genero = 'Prefiero no decir';
+    $registro->nacionalidad = NULL;
+    echo $registro->save();
+}
+```
+
+```
+$tabla->candidatosCabecera('idCandidato');
+$tabla->paterno = 'Este';
+$tabla->materno = 'Es';
+$tabla->nombre = 'Mi Nombre';
+echo $tabla->save();
 ```
 
 
