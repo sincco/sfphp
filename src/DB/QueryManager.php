@@ -18,25 +18,23 @@ use Sincco\Sfphp\DB\Connector;
 use Sincco\Sfphp\Logger;
 use Desarrolla2\Cache\File;
 
-class DataManager extends Connector {
+class QueryManager extends Connector {
 
 	private $sQuery;
-	private $settings;
-	private $bConnected = false;
-	private $log;
 	private $parameters;
 	private $connectionData;
 	private $cache;
 
-	private function Init($query, $parameters = "") {
+	public function setTable($table) {
+		$this->_mainTable = $table;
+	}
+
+	private function Init($query, $parameters = []) {
 		try {
 			$this->sQuery = $this->prepare($query);
-			
 			$this->bindMore($parameters);
-			
 			if (!empty($this->parameters)) {
 				foreach ($this->parameters as $param => $value) {
-					
 					$type = self::PARAM_STR;
 					switch ($value[1]) {
 						case is_int($value[1]):
@@ -57,10 +55,9 @@ class DataManager extends Connector {
 			Logger::error('Base de Datos', [$err, $err, $err->getFile(), $err->getLine()]);
 			return false;
 		}
-		
 		$this->parameters = array();
 	}
-	
+
 	public function bind($para, $value) {
 		$this->parameters[sizeof($this->parameters)] = [":" . $para , $value];
 	}
@@ -73,23 +70,23 @@ class DataManager extends Connector {
 			}
 		}
 	}
-	
+
 	public function query($query, $params = null, $fetchmode = self::FETCH_ASSOC) {
 		$response = false;
-		
 		$query = trim(str_replace("\r", " ", $query));
 		$idQuery = md5($query . serialize($params));
 		$idQuery = 'qry_' . $this->connectionData['type'].$idQuery;
 		$cache = new File(PATH_CACHE);
 		$rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
 		$statement = strtolower($rawStatement[0]);
-		
 		if ($cache->has($idQuery)) {
 			$reponse = $cache->get($idQuery);
 		} else {
 			$this->Init($query, $params);
 			switch ( $statement ) {
 				case 'select':
+				case 'desc':
+				case 'describe':
 				case 'show':
 					$response = $this->sQuery->fetchAll( $fetchmode );
 					break;
@@ -109,33 +106,58 @@ class DataManager extends Connector {
 		}
 		return $response;
 	}
-	
+
+	public function queryObject($query, $params = null) {
+		$response = false;
+		$query = trim(str_replace("\r", " ", $query));
+		$idQuery = md5($query . serialize($params));
+		$idQuery = 'qry_' . $this->connectionData['type'].$idQuery;
+		$cache = new File(PATH_CACHE);
+		$rawStatement = explode(" ", preg_replace("/\s+|\t+|\n+/", " ", $query));
+		$statement = strtolower($rawStatement[0]);
+		if ($cache->has($idQuery)) {
+			$reponse = $cache->get($idQuery);
+		} else {
+			$this->Init($query, $params);
+			switch ( $statement ) {
+				case 'select':
+				case 'show':
+					$response = $this->sQuery->fetchAll(self::FETCH_CLASS, '\Sincco\Sfphp\DB\Entity');
+					break;
+				default:
+					$response = NULL;
+					break;
+			}
+			if (intval(DEV_CACHE) == 1) {
+				$cache->set($idQuery, $response);
+			}
+		}
+		return $response;
+	}
+
 	public function insertId() {
 		return $this->lastInsertId();
 	}
-	
+
 	public function beginTransaction() {
 		return $this->beginTransaction();
 	}
-	
+
 	public function executeTransaction() {
 		return $this->commit();
 	}
-	
+
 	public function rollBack() {
 		return $this->rollBack();
 	}
-	
+
 	public function column($query, $params = null) {
 		$this->Init($query, $params);
 		$Columns = $this->sQuery->fetchAll(self::FETCH_NUM);
-		
 		$column = null;
-		
 		foreach ($Columns as $cells) {
 			$column[] = $cells[0];
 		}
-		
 		return $column;
 	}
 
@@ -152,7 +174,7 @@ class DataManager extends Connector {
 		$this->sQuery->closeCursor(); // Frees up the connection to the server so that other SQL statements may be issued
 		return $result;
 	}
-	
+
 	public function direct($query, $params = null) {
 		try {
 			$this->Init($query, $params);

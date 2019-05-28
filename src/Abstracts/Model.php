@@ -20,7 +20,7 @@ use Sincco\Sfphp\Crypt;
 /**
  * Define un modelo con conexion a base de datos
  */
-abstract class Model extends \Sincco\Sfphp\DB\Crud {
+abstract class Model extends \Sincco\Sfphp\DB\ORM {
 	/**
 	 * Constructor
 	 * @param string $dataBase Conecta a el modelo a una base de datos en específico
@@ -32,6 +32,6 @@ abstract class Model extends \Sincco\Sfphp\DB\Crud {
 		$_config = Reader::get( 'bases' );
 		$base = $_config[ $dataBase ];
 		$base[ 'password' ] = Crypt::decrypt( $base[ 'password' ] );
-		parent::connect( $base );
+		parent::_setDataBase( $base );
 	}
 }
