@@ -28,7 +28,7 @@ final class Crypt extends \stdClass {
 		$objKey = Key::loadFromAsciiSafeString($key);
 		return Crypto::encrypt($data, $objKey);
 	}
-	
+
 	public static function decrypt($data, $key = APP_KEY) {
 		$objKey = Key::loadFromAsciiSafeString($key);
 		return Crypto::decrypt($data, $objKey);

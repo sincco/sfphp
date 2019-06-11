@@ -60,7 +60,7 @@ final class Request extends \stdClass {
 			$_GET['url'] = false;
 		}
 		$_url = explode('/', $_GET['url']);
-		
+
 		if (!strstr($_SERVER['SERVER_SOFTWARE'], 'Apache')) {
 			array_shift($_url);
 		}
@@ -92,7 +92,7 @@ final class Request extends \stdClass {
 		$this->data['controller'] = $_segments['controller'];
 		$this->data['action'] = $_segments['action'];
 		$this->data['path'] = $_dirs;
-		
+
 		$this->params = self::procesaParametros($_url);
 		$this->data["params"] = $this->params;
 
@@ -123,7 +123,7 @@ final class Request extends \stdClass {
 		if(!isset($url))
 			$url = false;
 		$_url = explode('/', $url);
-		
+
 		if(!strstr($_SERVER['SERVER_SOFTWARE'], 'Apache'))
 			array_shift($_url);
 
@@ -274,7 +274,7 @@ final class Request extends \stdClass {
 			$valor = strip_tags($valor);
 			$valor = filter_var($valor,FILTER_SANITIZE_STRING);
 			if (get_magic_quotes_gpc())
-				$valor = stripslashes($valor);	
+				$valor = stripslashes($valor);
 		}
 		return $valor;
 	}

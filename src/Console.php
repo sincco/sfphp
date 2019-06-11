@@ -43,7 +43,7 @@ final class Console extends \stdClass {
 		if(isset($_config['timezone'])) {
 			date_default_timezone_set($_config['timezone']);
 		}
-		
+
 		$params = [];
 		foreach ($arguments as $_param) {
 			$param = explode('=', $_param);
