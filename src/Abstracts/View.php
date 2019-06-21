@@ -27,7 +27,7 @@ use Desarrolla2\Cache\Adapter\File;
 final class View extends \stdClass {
 	private $file;
 	private $template;
-	
+
 	/**
 	 * Crea la vista
 	 * @param string $file Archivo a cargar
@@ -75,7 +75,7 @@ final class View extends \stdClass {
 	 * Define las funciones a usar en las plantillas
 	 * @return none
 	 */
-	private function _twigFunctions() 
+	private function _twigFunctions()
 	{
 		$function = new \Twig_SimpleFunction('__', function ($text) {
 			return $this->_translate($text);
@@ -99,6 +99,10 @@ final class View extends \stdClass {
 		$this->template->addFunction($function);
 		$function = new \Twig_SimpleFunction('getUrl', function ($url) {
 			return $this->_getUrl($url);
+		});
+		$this->template->addFunction($function);
+		$function = new \Twig_SimpleFunction('fromSession', function ($key) {
+			return $this->_fromSession($key);
 		});
 		$this->template->addFunction($function);
 	}
@@ -190,6 +194,10 @@ final class View extends \stdClass {
 	 */
 	private function _getUrl($url) {
 		return BASE_URL . $url;
+	}
+
+	private function _fromSession($key) {
+		return Session::get($key);
 	}
 
 }

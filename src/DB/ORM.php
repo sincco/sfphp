@@ -225,13 +225,9 @@ class ORM {
 		if (is_null($query))
 		{
 			$sqlQuery = (string)$this;
-		} else
-		{
-			$sqlQuery = $query;
-			$this->_params = $params;
+			$this->_connect();
+			return $this->_->query($sqlQuery, $this->_params);
 		}
-		$this->_connect();
-		return $this->_->query($sqlQuery, $this->_params);
 	}
 
 	public function getCollection( $query=NULL, $params=[] ) {
@@ -241,19 +237,6 @@ class ORM {
 			$response = $this->_->query('DESC ' . $this->_table);
 			$this->_tableFields = $response;
 			$sqlQuery = (string)$this;
-			$response = $this->_->queryObject($sqlQuery, $this->_params);
-			array_walk_recursive(
-				$response, function (&$row) {
-					$row->_setDataBase($this->_dataBaseConnection);
-					$row->_setKeys($this->_table, $this->_tableUniqueKey, $this->_tableFields);
-				}
-			);
-			return $response;
-		} else
-		{
-			$this->_connect();
-			$sqlQuery = $query;
-			$this->_params = $params;
 			$response = $this->_->queryObject($sqlQuery, $this->_params);
 			array_walk_recursive(
 				$response, function (&$row) {
