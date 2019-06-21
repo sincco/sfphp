@@ -13,7 +13,7 @@
 	"require": {
 		"php": "^5.3.3 || ^7.0 || ^7.1",
 		"sincco/singleton": "^1.0",
-		"sincco/tokenizer": "^1.0",
+		"sincco/tokenizer": "^1.1.1",
 		"monolog/monolog": "^1.20",
 		"desarrolla2/cache":  "^3.0",
 		"league/climate": "^3.2.1",
