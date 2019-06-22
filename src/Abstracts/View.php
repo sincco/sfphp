@@ -197,7 +197,12 @@ final class View extends \stdClass {
 	}
 
 	private function _fromSession($key) {
-		return Session::get($key);
+		$data = unserialize(Session::get($key));
+		if ($data === false)
+		{
+			$data = Session::get($key);
+		}
+		return $data;
 	}
 
 }
