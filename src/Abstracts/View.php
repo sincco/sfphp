@@ -197,10 +197,16 @@ final class View extends \stdClass {
 	}
 
 	private function _fromSession($key) {
-		$data = unserialize(Session::get($key));
-		if ($data === false)
-		{
+		try {
 			$data = Session::get($key);
+			$data = htmlspecialchars_decode($data);
+			if ($data === false)
+			{
+				$data = Session::get($key);
+			}
+		}catch (\Exception $err) {
+			\Sincco\Sfphp\Logger::error('VIEW::' . $key);
+			$data = [];
 		}
 		return $data;
 	}

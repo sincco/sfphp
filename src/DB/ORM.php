@@ -173,8 +173,8 @@ class ORM {
 	}
 
 	private function _sanitizeValue( $value ) {
+		$value = addslashes($value);
 		$value = filter_var($value, FILTER_SANITIZE_STRING);
-		$value = htmlspecialchars($value);
 		$value = strip_tags($value);
 		return $value;
 	}
