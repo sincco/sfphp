@@ -67,4 +67,16 @@ class Entity extends ORM{
 		$response = $this->_->query($sqlQuery, $params);
 		return $response;
 	}
+
+	public function delete() {
+		$response;
+		$params = [];
+		$keyField = $this->_tableUniqueKey;
+		$keyValue = $this->_fields[$keyField];
+		$sqlQuery = 'DELETE FROM `'.$this->_table.'` WHERE ' . $keyField . ' = :'. $keyField . ';';
+		$params[$keyField] = $keyValue;
+		$this->_connect();
+		$response = $this->_->query($sqlQuery, $params);
+		return $response;
+	}
 }

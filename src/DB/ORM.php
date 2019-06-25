@@ -16,6 +16,7 @@ class ORM {
 	protected $_from;
 	protected $_joins;
 	protected $_filter;
+	protected $_limit;
 	protected $_order;
 	protected $_params;
 	// Aditional Data
@@ -97,34 +98,46 @@ class ORM {
 	private function _processFilter( $field, $conditions ) {
 		if (is_array($conditions))
 		{
-			switch (strtolower($conditions[0])) {
-				case '>=':
-					$type = 'laet';
-				case '<=':
-					$type = 'loet';
-				case '>':
-					$type = 'lat';
-				case '<':
-					$type = 'lot';
-				case 'in':
-					$type = 'in';
-				case '!=':
-					$type = 'dif';
-					$var = $field . $type;
-					$condition = $field . $conditions[0] . ' :' . $var;
-					$this->_filter[] = $condition;
-					$this->_params[$var] = $conditions[1];
-					break;
-				default:
-					$filters = [];
-					foreach ($conditions as $key=>$value) {
-						$var = $field.$key;
-						$condition = $field . ' = :' . $var;
-						$filters[] = $condition;
-						$this->_params[$var] = $value;
-					}
-					$this->_filter[] = '(' . implode(' OR ', $filters) . ')';
-					break;
+			foreach ($conditions as $key => $value) {
+				switch (strtolower($key)) {
+					case 'like':
+						$type = 'like';
+						$value = '%' . $value . '%';
+						break;
+					case '>=':
+						$type = 'laet';
+						break;
+					case '<=':
+						$type = 'loet';
+						break;
+					case '>':
+						$type = 'lat';
+						break;
+					case '<':
+						$type = 'lot';
+						break;
+					case 'in':
+						$type = 'in';
+						break;
+					case '!=':
+						$type = 'dif';
+						break;
+				}
+				$var = $field . $type;
+				$condition = $field . ' ' . $key . ' :' . $var;
+				$this->_filter[] = $condition;
+				$this->_params[$var] = $value;
+					// default:
+					// 	$filters = [];
+					// 	foreach ($conditions as $key=>$value) {
+					// 		$var = $field.$key;
+					// 		$condition = $field . ' = :' . $var;
+					// 		$filters[] = $condition;
+					// 		$this->_params[$var] = $value;
+					// 	}
+					// 	$this->_filter[] = '(' . implode(' OR ', $filters) . ')';
+					// 	break;
+				//}
 			}
 		} else
 		{
@@ -183,7 +196,7 @@ class ORM {
 		$this->_filter = [];
 		$this->_order = [];
 		$this->_params = [];
-	}
+		$this->_limit = NULL;	}
 
 	public function _setDataBase( $data ) {
 		$this->_dataBaseConnection = $data;
@@ -203,7 +216,6 @@ class ORM {
 				}
 			}
 		}
-		//var_dump($this->_params);echo "<br/>";
 		$from = implode(',', $from);
 		$join = implode(' ', $this->_joins);
 		$filter = implode(' AND ', $this->_filter);
@@ -211,7 +223,10 @@ class ORM {
 		if (strlen(trim($filter)) > 0) {
 			$query .= ' WHERE ' . $filter;
 		}
-		// var_dump($query);echo "<br/>";
+		if (trim($this->_limit) != '')
+		{
+			$query .= ' ' . $this->_limit;
+		}
 		return $query;
 	}
 
@@ -219,6 +234,21 @@ class ORM {
 		if (is_null($this->_)) {
 			$this->_ =  Singleton::get( 'Sincco\Sfphp\DB\QueryManager', ['connectionData'=>$this->_dataBaseConnection], $this->_dataBaseConnection[ 'dbname' ] );
 		}
+	}
+
+	public function count()
+	{
+		$filter = '';
+		$join = implode(' ', $this->_joins);
+		$filter = implode(' AND ', $this->_filter);
+		$query = 'SELECT COUNT(*) count FROM ' . $this->_table . ' ' . $join;
+		if (strlen(trim($filter)) > 0) {
+			$query .= ' WHERE ' . $filter;
+		}
+		$this->_connect();
+		$data = $this->_->query($query, $this->_params);
+		$data = array_pop($data);
+		return $data['count'];
 	}
 
 	public function getData( $query=NULL, $params=[] ) {
@@ -246,6 +276,11 @@ class ORM {
 			);
 			return $response;
 		}
+	}
+
+	public function pagination($offset, $limit)
+	{
+		$this->_limit = " LIMIT " . $offset . "," . $limit;
 	}
 
 	public function save() {
