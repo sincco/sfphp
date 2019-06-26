@@ -16,7 +16,7 @@ class Entity extends ORM{
 
 	public function __set( $fieldName, $value ) {
 		$fieldName = $this->_camelToUnderscore($fieldName);
-		$this->_fields[$fieldName] = $value;
+		$this->_fields[$fieldName] = $this->_sanitizeValue($value);
 	}
 
 	public function _setKeys($table, $key, $columns) {
@@ -78,5 +78,12 @@ class Entity extends ORM{
 		$this->_connect();
 		$response = $this->_->query($sqlQuery, $params);
 		return $response;
+	}
+
+	private function _sanitizeValue( $value ) {
+		$value = addslashes($value);
+		$value = filter_var($value, FILTER_SANITIZE_STRING);
+		$value = strip_tags($value);
+		return $value;
 	}
 }

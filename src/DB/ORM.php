@@ -40,6 +40,12 @@ class ORM {
 				if (count($args) < 2)
 				{
 					$args = array_pop($args);
+				} else
+				{
+					$table = $args[1];
+					$args = $args[0];
+					$table = $this->_camelToUnderscore($table);
+					$field = $table . '.' . $field;
 				}
 				$this->_processFilter($field,$args);
 				$methodName = NULL;
@@ -48,6 +54,12 @@ class ORM {
 				$table = str_replace($function, '', $methodName);
 				$table = $this->_camelToUnderscore($table);
 				$this->_from[$table] = $args[0];
+				$methodName = NULL;
+				break;
+			case 'order':
+				$table = str_replace($function, '', $methodName);
+				$table = $this->_camelToUnderscore($table);
+				$this->_order[$table] = $args[0];
 				$methodName = NULL;
 				break;
 			case 'inner':
@@ -96,7 +108,16 @@ class ORM {
 	}
 
 	private function _processFilter( $field, $conditions ) {
+		$type = false;
 		if (is_array($conditions))
+		{
+			$keys = array_keys($conditions);
+			if (is_integer($keys[0]))
+			{
+				$type = true;
+			}
+		}
+		if ($type)
 		{
 			foreach ($conditions as $key => $value) {
 				switch (strtolower($key)) {
@@ -123,25 +144,14 @@ class ORM {
 						$type = 'dif';
 						break;
 				}
-				$var = $field . $type;
+				$var = str_replace('.', '_', $field . $type);
 				$condition = $field . ' ' . $key . ' :' . $var;
 				$this->_filter[] = $condition;
 				$this->_params[$var] = $value;
-					// default:
-					// 	$filters = [];
-					// 	foreach ($conditions as $key=>$value) {
-					// 		$var = $field.$key;
-					// 		$condition = $field . ' = :' . $var;
-					// 		$filters[] = $condition;
-					// 		$this->_params[$var] = $value;
-					// 	}
-					// 	$this->_filter[] = '(' . implode(' OR ', $filters) . ')';
-					// 	break;
-				//}
 			}
 		} else
 		{
-			$var = $field . 'eq';
+			$var = str_replace('.', '_', $field . 'eq');
 			$condition = $field . ' = :' . $var;
 			$this->_filter[] = $condition;
 			$this->_params[$var] = $conditions;
@@ -217,11 +227,27 @@ class ORM {
 			}
 		}
 		$from = implode(',', $from);
+		$order = [];
+		foreach ($this->_order as $table=>$fields) {
+			if (!is_array($fields))
+			{
+				$order[] = $table . '.'  . $this->_camelToUnderscore($fields);
+			}else
+			{
+				foreach ($fields as $field) {
+					$order[] = $table . '.'  . $this->_camelToUnderscore($field);
+				}
+			}
+		}
+		$order = implode(',', $order);
 		$join = implode(' ', $this->_joins);
 		$filter = implode(' AND ', $this->_filter);
 		$query = 'SELECT ' . $from . ' ' . ' FROM ' . $this->_table . ' ' . $join;
 		if (strlen(trim($filter)) > 0) {
 			$query .= ' WHERE ' . $filter;
+		}
+		if (strlen(trim($order)) > 0) {
+			$query .= ' ORDER BY ' . $order;
 		}
 		if (trim($this->_limit) != '')
 		{

@@ -37,7 +37,8 @@ abstract class Generic
 		$path[count($path) - 2] = 'Models';
 		include_once(PATH_ROOT . '/app/' . implode('/', $path) . '.php');
 		$class = $path[count($path) - 1]."Model";
-		$model = Singleton::get($class);
+		//$model = Singleton::get($class);
+		$model = new $class;
 		$model->_reset();
 		return $model;
 	}
