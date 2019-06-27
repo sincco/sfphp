@@ -112,7 +112,7 @@ class ORM {
 		if (is_array($conditions))
 		{
 			$keys = array_keys($conditions);
-			if (is_integer($keys[0]))
+			if (!is_integer($keys[0]))
 			{
 				$type = true;
 			}
