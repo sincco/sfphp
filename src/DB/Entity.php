@@ -34,6 +34,10 @@ class Entity extends ORM{
 		$this->_tableFields = $columns;
 	}
 
+	public function _setDataBase( $data ) {
+		parent::_setDataBase($data);
+	}
+
 	public function save() {
 		$response;
 		$fields = [];
@@ -68,7 +72,6 @@ class Entity extends ORM{
 		$keyValue = $this->_fields[$keyField];
 		$sqlQuery = 'UPDATE `'.$this->_table.'` SET '.$setClause.' WHERE ' . $keyField . ' = :'. $keyField . ';';
 		$params[$keyField] = $keyValue;
-		#var_dump($sqlQuery, $params);
 		$this->_connect();
 		$response = $this->_->query($sqlQuery, $params);
 		return $response;

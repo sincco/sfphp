@@ -84,7 +84,6 @@ final class Request extends \stdClass {
 
 		if (isset($_url[1])) {
 			$_segments['action'] = $this->_dashesToCamelCase($_url[1]);
-
 		} else {
 			$_segments['action'] = 'Index';
 		}
@@ -280,6 +279,12 @@ final class Request extends \stdClass {
 		return $valor;
 	}
 
+	/**
+	 * Convierte una cadena URL a una cadena estandar camel case para funciones
+	 * @param string $string cadena url
+	 * @param bool $capitalizeFirstCharacter convertir a mayuscula primer letra
+	 * @return string
+	 */
 	private function _dashesToCamelCase($string, $capitalizeFirstCharacter = false) 
 	{
 
@@ -291,6 +296,5 @@ final class Request extends \stdClass {
 
 		return $str;
 	}
-
 }
 
