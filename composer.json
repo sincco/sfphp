@@ -3,7 +3,7 @@
 	"description": "SimpleFramework(for)PHP",
 	"license": "MIT",
 	"keywords": ["sfphp","framework","sincco"],
-	"version": "2.2.7",
+	"version": "2.2.8",
 	"authors": [
 		{
 			"name": "Ivan Miranda",

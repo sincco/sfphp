@@ -143,11 +143,21 @@ class ORM {
 					case '!=':
 						$type = 'dif';
 						break;
+					case 'is not null':
+						$key = strtoupper($key);
+						$type = false;
+						break;
 				}
-				$var = str_replace('.', '_', $field . $type);
-				$condition = $field . ' ' . $key . ' :' . $var;
-				$this->_filter[] = $condition;
-				$this->_params[$var] = $value;
+				if ($type !== false)
+				{
+					$var = str_replace('.', '_', $field . $type);
+					$condition = $field . ' ' . $key . ' :' . $var;
+					$this->_filter[] = $condition;
+					$this->_params[$var] = $value;
+				} else
+				{
+					$this->_filter[] = $field . ' ' . $key;
+				}
 			}
 		} else
 		{
