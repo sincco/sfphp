@@ -34,10 +34,6 @@ class Entity extends ORM{
 		$this->_tableFields = $columns;
 	}
 
-	public function _setDataBase( $data ) {
-		parent::_setDataBase($data);
-	}
-
 	public function save() {
 		$response;
 		$fields = [];

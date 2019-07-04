@@ -277,7 +277,6 @@ class ORM {
 	}
 
 	public function getData( $query=NULL, $params=[] ) {
-<<<<<<< HEAD
 		$this->_connect();
 		if (is_null($query))
 		{
@@ -310,32 +309,6 @@ class ORM {
 			}
 		);
 		return $response;
-=======
-		if (is_null($query))
-		{
-			$sqlQuery = (string)$this;
-			$this->_connect();
-			return $this->_->query($sqlQuery, $this->_params);
-		}
-	}
-
-	public function getCollection( $query=NULL, $params=[] ) {
-		if (is_null($query))
-		{
-			$this->_connect();
-			$response = $this->_->query('DESC ' . $this->_table);
-			$this->_tableFields = $response;
-			$sqlQuery = (string)$this;
-			$response = $this->_->queryObject($sqlQuery, $this->_params);
-			array_walk_recursive(
-				$response, function (&$row) {
-					$row->_setDataBase($this->_dataBaseConnection);
-					$row->_setKeys($this->_table, $this->_tableUniqueKey, $this->_tableFields);
-				}
-			);
-			return $response;
-		}
->>>>>>> f4853ca746b4448ce6681776cba883bd6083a242
 	}
 
 	public function pagination($offset, $limit)
