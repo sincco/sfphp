@@ -18,6 +18,7 @@ class ORM {
 	protected $_filter;
 	protected $_limit;
 	protected $_order;
+	protected $_group;
 	protected $_params;
 	// Aditional Data
 	private $_table;
@@ -54,6 +55,12 @@ class ORM {
 				$table = str_replace($function, '', $methodName);
 				$table = $this->_camelToUnderscore($table);
 				$this->_from[$table] = $args[0];
+				$methodName = NULL;
+				break;
+			case 'group':
+				$table = str_replace($function, '', $methodName);
+				$table = $this->_camelToUnderscore($table);
+				$this->_group[$table] = $args[0];
 				$methodName = NULL;
 				break;
 			case 'order':
@@ -214,6 +221,7 @@ class ORM {
 		$this->_joins = [];
 		$this->_filter = [];
 		$this->_order = [];
+		$this->_group = [];
 		$this->_params = [];
 		$this->_limit = NULL;	}
 
@@ -231,7 +239,15 @@ class ORM {
 			}else
 			{
 				foreach ($fields as $field) {
-					$from[] = $table . '.'  . $this->_camelToUnderscore($field);
+					if (!is_array($field))
+					{
+						$from[] = $table . '.'  . $this->_camelToUnderscore($field);
+					} else
+					{
+						$functions = array_keys($field);
+						$values = array_values($field);
+						$from[] = $functions[0] . '(' . $table . '.'  . $this->_camelToUnderscore($values[0]) . ') ' . $this->_camelToUnderscore($values[0]);
+					}
 				}
 			}
 		}
@@ -244,16 +260,40 @@ class ORM {
 			}else
 			{
 				foreach ($fields as $field) {
-					$order[] = $table . '.'  . $this->_camelToUnderscore($field);
+					if (!is_array($field))
+					{
+						$order[] = $table . '.'  . $this->_camelToUnderscore($field);
+					} else
+					{
+						$functions = array_keys($field);
+						$values = array_values($field);
+						$order[] = $table . '.'  . $this->_camelToUnderscore($values[0]) . ' ' . $functions[0];
+					}
 				}
 			}
 		}
 		$order = implode(',', $order);
+		$group = [];
+		foreach ($this->_group as $table=>$fields) {
+			if (!is_array($fields))
+			{
+				$group[] = $table . '.'  . $this->_camelToUnderscore($fields);
+			}else
+			{
+				foreach ($fields as $field) {
+					$group[] = $table . '.'  . $this->_camelToUnderscore($field);
+				}
+			}
+		}
+		$group = implode(',', $group);
 		$join = implode(' ', $this->_joins);
 		$filter = implode(' AND ', $this->_filter);
 		$query = 'SELECT ' . $from . ' ' . ' FROM ' . $this->_table . ' ' . $join;
 		if (strlen(trim($filter)) > 0) {
 			$query .= ' WHERE ' . $filter;
+		}
+		if (strlen(trim($group)) > 0) {
+			$query .= ' GROUP BY ' . $group;
 		}
 		if (strlen(trim($order)) > 0) {
 			$query .= ' ORDER BY ' . $order;
