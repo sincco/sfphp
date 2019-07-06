@@ -35,6 +35,10 @@ class ORM {
 		}
 		$function = $this->_getFunctionCalled($methodName);
 		switch ($function) {
+			case 'filters':
+				$this->_processFilters($args[0]);
+				$methodName = null;
+				break;
 			case 'filter':
 				$field = str_replace($function, '', $methodName);
 				$field = $this->_camelToUnderscore($field);
@@ -44,9 +48,9 @@ class ORM {
 				} else
 				{
 					$table = $args[1];
+					$field = $table . '.' . $field;
 					$args = $args[0];
 					$table = $this->_camelToUnderscore($table);
-					$field = $table . '.' . $field;
 				}
 				$this->_processFilter($field,$args);
 				$methodName = NULL;
@@ -76,7 +80,18 @@ class ORM {
 				$table = $this->_camelToUnderscore($table);
 				foreach ($args as $arg) {
 					foreach ($arg as $type => $value) {
-						$join = strtoupper($function) . ' JOIN ' . $table . ' ' . $type . ' (' . $this->_camelToUnderscore($value) . ')';
+						if (!is_array($value))
+						{
+							$join = strtoupper($function) . ' JOIN ' . $table . ' ' . $type . ' (' . $this->_camelToUnderscore($value) . ')';
+						} else
+						{
+							$join = strtoupper($function) . ' JOIN ' . $table . ' ' . $type;
+							$fields = '';
+							foreach ($value as $key => $extraField) {
+								$fields .= $table . '.' . $this->_camelToUnderscore($key) . ' = ' . $this->_camelToUnderscore($extraField[0]) . '.' . $this->_camelToUnderscore($extraField[1]);
+							}
+							$join .= ' (' . $fields . ') ';
+						}
 						$this->_joins[] =  $join;
 						$this->_from[$table] = '*';
 					}
@@ -112,6 +127,21 @@ class ORM {
 	public function __set( $fieldName, $value ) {
 		$fieldName = $this->_camelToUnderscore($fieldName);
 		$this->_fields[$fieldName] = $this->_sanitizeValue($value);
+	}
+
+	private function _processFilters($conditions){
+		foreach ($conditions as $table=>$condition) {
+			$table = $this->_camelToUnderscore($table);
+			foreach ($condition as $field => $value) {
+				$type = 'eq';
+				$operator = ' = ';
+				$field = $this->_camelToUnderscore($field);
+				$var = $field . $type;
+				$condition = $table . '.' . $field . $operator . ' :' . $var;
+				$this->_filter[] = $condition;
+				$this->_params[$var] = $value;
+			}
+		}
 	}
 
 	private function _processFilter( $field, $conditions ) {
