@@ -396,6 +396,11 @@ class ORM {
 		$this->_limit = " LIMIT " . $offset . "," . $limit;
 	}
 
+	public function resetFilter()
+	{
+		$this->_filter = [];
+	}
+
 	public function save() {
 		$this->_connect();
 		$response = $this->_->query('DESC ' . $this->_table);
