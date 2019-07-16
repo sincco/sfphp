@@ -54,6 +54,7 @@ final class Session extends \stdClass {
 			self::set('sincco\sfphp\client\uuid', md5(serialize(['address'=>$_SERVER['REMOTE_ADDR'], 'browser'=>$_SERVER['HTTP_USER_AGENT'], 'session_id'=>session_id()])));
 		}
 		$calculated = md5(serialize(['address'=>$_SERVER['REMOTE_ADDR'], 'browser'=>$_SERVER['HTTP_USER_AGENT'], 'session_id'=>session_id()]));
+		$echo = self::get('sincco\sfphp\client\uuid');
 		if ($calculated !== self::get('sincco\sfphp\client\uuid')) {
 			session_destroy();
 			session_write_close();
