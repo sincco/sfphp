@@ -217,6 +217,7 @@ final class Request extends \stdClass {
 			case "application/json":
 			case "application/json;":
 			case "application/json; charset=UTF-8":
+			case "application/json;charset=UTF-8":
 			if(trim($_contenido) != "") {
 				foreach (json_decode($_contenido, TRUE) as $key => $value) {
 					$params[$key] = self::cleanPOST($value);
