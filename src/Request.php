@@ -77,7 +77,7 @@ final class Request extends \stdClass {
 		$_url = array_slice($_url, $intDirs);
 
 		if (isset($_url[0])) {
-			$_segments['controller'] = ucwords($_url[0]);
+			$_segments['controller'] = $this->_dashesToCamelCase($_url[0], true);
 		} else {
 			$_segments['controller'] = 'Index';
 		}
@@ -286,9 +286,8 @@ final class Request extends \stdClass {
 	 * @param bool $capitalizeFirstCharacter convertir a mayuscula primer letra
 	 * @return string
 	 */
-	private function _dashesToCamelCase($string, $capitalizeFirstCharacter = false) 
+	private function _dashesToCamelCase($string, $capitalizeFirstCharacter = false)
 	{
-
 		$str = str_replace(' ', '', ucwords(str_replace('-', ' ', $string)));
 
 		if (!$capitalizeFirstCharacter) {
@@ -298,4 +297,3 @@ final class Request extends \stdClass {
 		return $str;
 	}
 }
-
