@@ -221,6 +221,7 @@ final class Request extends \stdClass {
 			if(trim($_contenido) != "") {
 				foreach (json_decode($_contenido, TRUE) as $key => $value) {
 					$params[$key] = self::cleanPOST($value);
+					$params[$key . '__RAW__'] = $value;
 				}
 			}
 			break;
@@ -297,3 +298,4 @@ final class Request extends \stdClass {
 		return $str;
 	}
 }
+
