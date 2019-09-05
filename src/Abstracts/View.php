@@ -105,6 +105,18 @@ final class View extends \stdClass {
 			return $this->_fromSession($key);
 		});
 		$this->template->addFunction($function);
+		$function = new \Twig_SimpleFunction('lpad', function ($value, $pad_length, $pad_string) {
+			return $this->_lpad($value, $pad_length, $pad_string);
+		});
+		$this->template->addFunction($function);
+		$function = new \Twig_SimpleFunction('rpad', function ($value, $pad_length, $pad_string) {
+			return $this->_rpad($value, $pad_length, $pad_string);
+		});
+		$this->template->addFunction($function);
+		$function = new \Twig_SimpleFunction('base64_encode', function ($value) {
+			return base64_encode($value);
+		});
+		$this->template->addFunction($function);
 	}
 
 	/**
@@ -194,6 +206,14 @@ final class View extends \stdClass {
 	 */
 	private function _getUrl($url) {
 		return BASE_URL . $url;
+	}
+
+	public function _lpad($value, $pad_length, $pad_string) {
+		return str_pad($value, $pad_length, $pad_string, STR_PAD_LEFT);
+	}
+
+	public function _rpad($value, $pad_length, $pad_string) {
+		return str_pad($value, $pad_length, $pad_string, STR_PAD_RIGHT);
 	}
 
 	private function _fromSession($key) {
