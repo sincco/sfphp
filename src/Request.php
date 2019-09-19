@@ -31,9 +31,9 @@ final class Request extends \stdClass {
 
 		$this->data['method'] = strtoupper(trim($_SERVER['REQUEST_METHOD']));
 
-		$this->data['content_type'] = 'html';
+		$this->data['content_type'] = [0=>'html'];
 		if(isset($_SERVER['CONTENT_TYPE'])) {
-			$this->data['content_type'] = $_SERVER['CONTENT_TYPE'];
+			$this->data['content_type'] = explode(';', strtolower($_SERVER['CONTENT_TYPE']));
 		}
 
 		if(isset($_SERVER['HTTP_REFERER']))
@@ -110,9 +110,9 @@ final class Request extends \stdClass {
 
 		self::$_instance->data['method'] = strtoupper(trim($_SERVER['REQUEST_METHOD']));
 
-		self::$_instance->data['content_type'] = 'html';
+		self::$_instance->data['content_type'] = [0=>'html'];
 		if(isset($_SERVER['CONTENT_TYPE'])) {
-			self::$_instance->data['content_type'] = $_SERVER['CONTENT_TYPE'];
+			self::$_instance->data['content_type'] = explode(';', strtolower($_SERVER['CONTENT_TYPE']));
 		}
 
 		if(isset($_SERVER['HTTP_REFERER']))
@@ -213,17 +213,18 @@ final class Request extends \stdClass {
 		}
 	#POST
 		$_contenido = file_get_contents("php://input");
-		switch($this->data['content_type']) {
+		switch(strtolower($this->data['content_type'][0])) {
 			case "application/json":
-			case "application/json;":
-			case "application/json; charset=UTF-8":
-			case "application/json;charset=UTF-8":
 			if(trim($_contenido) != "") {
 				foreach (json_decode($_contenido, TRUE) as $key => $value) {
 					$params[$key] = self::cleanPOST($value);
 					$params[$key . '__RAW__'] = $value;
 				}
 			}
+			break;
+			case "application/xml":
+			case "text/xml":
+				$params = simplexml_load_string($_contenido);
 			break;
 			case "application/x-www-form-urlencoded":
 				parse_str($_contenido, $postvars);

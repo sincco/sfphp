@@ -59,7 +59,9 @@ class QueryManager extends Connector {
 	}
 
 	public function bind($para, $value) {
-		$this->parameters[sizeof($this->parameters)] = [":" . $para , $value];
+		if (is_array($this->parameters)) {
+			$this->parameters[sizeof($this->parameters)] = [":" . $para , $value];
+		}
 	}
 
 	public function bindMore($parray) {
