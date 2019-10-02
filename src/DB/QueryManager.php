@@ -50,7 +50,12 @@ class QueryManager extends Connector {
 					$this->sQuery->bindValue($value[0], $value[1], $type);
 				}
 			}
-			$this->sQuery->execute();
+			if (!empty($this->parameters)) {
+				$this->sQuery->execute();
+			} else
+			{
+				$this->sQuery->execute($parameters);
+			}
 		} catch (\PDOException $err) {
 			Logger::error('Base de Datos', [$err, $err, $err->getFile(), $err->getLine()]);
 			return false;
