@@ -3,7 +3,7 @@
 	"description": "SimpleFramework(for)PHP",
 	"license": "MIT",
 	"keywords": ["sfphp","framework","sincco"],
-	"version": "2.2.20",
+	"version": "2.2.21",
 	"authors": [
 		{
 			"name": "Ivan Miranda",
@@ -20,6 +20,7 @@
 		"symfony/filesystem": "^3.4",
 		"composer/composer": "^1.6",
 		"defuse/php-encryption": "^2.2.1",
+		"catfan/medoo": "^1.7",
 		"twig/twig": "^1.27.0"
 	},
 	"autoload": {
