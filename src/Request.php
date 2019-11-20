@@ -36,26 +36,13 @@ final class Request extends \stdClass {
 			$this->data['content_type'] = explode(';', strtolower($_SERVER['CONTENT_TYPE']));
 		}
 
-		if(isset($_SERVER['HTTP_REFERER']))
+		if(isset($_SERVER['HTTP_REFERER'])){
 			$this->data['previous'] = $_SERVER['HTTP_REFERER'];
-		else
-			$this->data['previous'] = NULL;
-
-		//Soporte para Autorización
-		if ($_SERVER['REQUEST_METHOD'] != 'cli') {
-			if (function_exists('apache_request_headers')) {
-				$headers = apache_request_headers();
-			}
-			if (function_exists('getallheaders')) {
-				$headers = getallheaders();
-			}
-			if (isset($headers['Authorization'])){
-				$this->data['authorization'] = $headers['Authorization'];
-			}
-			if (isset($headers['x-access-token'])){
-				$this->data['authorization'] = $headers['x-access-token'];
-			}
 		}
+		else {
+			$this->data['previous'] = NULL;
+		}
+
 		if (!isset($_GET['url'])) {
 			$_GET['url'] = false;
 		}
@@ -94,7 +81,24 @@ final class Request extends \stdClass {
 		$this->data['path'] = $_dirs;
 
 		$this->params = self::procesaParametros($_url);
-		$this->data["params"] = $this->params;
+		//Soporte para Autorización
+		if ($_SERVER['REQUEST_METHOD'] != 'cli') {
+			if (function_exists('apache_request_headers')) {
+				$headers = apache_request_headers();
+			}
+			if (function_exists('getallheaders')) {
+				$headers = getallheaders();
+			}
+			if (isset($headers['Authorization'])){
+				$this->params['token'] = $headers['Authorization'];
+				$this->data['authorization'] = $headers['Authorization'];
+			}
+			if (isset($headers['x-access-token'])){
+				$this->params['token'] = $headers['x-access-token'];
+				$this->data['authorization'] = $headers['x-access-token'];
+			}
+		}
+		$this->data['params'] = $this->params;
 
 		if(array_key_exists('__clearCache', $this->params)) {
 			$this->clearCache(PATH_CACHE);
