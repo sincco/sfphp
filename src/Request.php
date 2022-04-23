@@ -43,9 +43,9 @@ final class Request extends \stdClass {
 			$this->data['previous'] = NULL;
 		}
 
-		$_GET['url'] = str_replace('.html', '', $_GET['url']);
 		if (!isset($_GET['url'])) {
 			$_GET['url'] = false;
+			$_GET['url'] = str_replace('.html', '', $_GET['url']);
 		}
 		$_url = explode('/', $_GET['url']);
 
