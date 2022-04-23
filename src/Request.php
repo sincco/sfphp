@@ -279,8 +279,7 @@ final class Request extends \stdClass {
 			$valor = preg_replace($_busquedas, '', $valor);
 			$valor = strip_tags($valor);
 			$valor = filter_var($valor,FILTER_SANITIZE_STRING);
-			if (get_magic_quotes_gpc())
-				$valor = stripslashes($valor);
+			$valor = stripslashes($valor);
 		}
 		return $valor;
 	}
