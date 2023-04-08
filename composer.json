@@ -11,9 +11,9 @@
 		}
 	],
 	"require": {
-		"php": "^7.2 || ^7.4 || ^8.1",
+		"php": ">=7.2",
 		"petrknap/php-singleton": "1.0.0",
-		"sincco/tokenizer": "^1.1.1",
+		"sincco/tokenizer": "^1.1",
 		"monolog/monolog": "^1.20",
 		"desarrolla2/cache":  "^3.0",
 		"league/climate": "^3.2.1",
