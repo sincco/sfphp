@@ -11,13 +11,13 @@
 		}
 	],
 	"require": {
-		"php": ">=7.2",
+		"php": ">=8.1",
 		"petrknap/php-singleton": "1.0.0",
 		"sincco/tokenizer": "^1.1",
 		"monolog/monolog": "^3.3",
 		"league/climate": "^3.2.1",
 		"symfony/filesystem": "^3.4",
-		"composer/composer": "^1.6",
+		"composer/composer": "^2.5",
 		"defuse/php-encryption": "^2.3",
 		"catfan/medoo": "^2.1",
 		"twig/twig": "^3.5",
